@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Banana Clicker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { 
+            background: #1a1a1a; 
+            color: white; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .score { font-size: 48px; margin-bottom: 20px; color: #f1c40f; }
+        .banana { 
+            width: 200px; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .banana:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+    <div class="score">🍌 <span id="count">0</span></div>
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909808.png" class="banana" id="banana">
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let count = 0;
+        const img = document.getElementById('banana');
+        const display = document.getElementById('count');
+
+        tg.expand(); // Разворачиваем на весь экран
+
+        img.addEventListener('click', () => {
+            count++;
+            display.innerText = count;
+            tg.HapticFeedback.impactOccurred('medium'); // Вибрация при нажатии
+        });
+    </script>
+</body>
+</html>
