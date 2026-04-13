@@ -6,38 +6,57 @@
     <title>Banana Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-bg: #121212; --card-bg: #1e1e1e; --accent: #f1c40f; --diamond: #3498db; }
+        :root { --main-bg: #0f0f0f; --card-bg: #1a1a1a; --accent: #fbc531; --diamond: #00a8ff; }
         body { 
-            background-color: var(--main-bg); color: white; font-family: 'Segoe UI', sans-serif;
+            background-color: var(--main-bg); color: white; font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden;
         }
-        .header { display: flex; gap: 20px; margin-top: 20px; background: var(--card-bg); padding: 10px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .stat { text-align: center; }
-        .stat-val { font-size: 20px; font-weight: bold; display: block; }
-        .stat-label { font-size: 12px; color: #888; }
         
+        /* Панель баланса */
+        .header { 
+            display: flex; gap: 15px; margin-top: 20px; 
+            background: var(--card-bg); padding: 15px 25px; border-radius: 20px;
+            border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        .stat { text-align: center; min-width: 80px; }
+        .stat-val { font-size: 22px; font-weight: 800; display: block; }
+        .stat-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Главный банан */
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .banana { width: 250px; cursor: pointer; transition: transform 0.1s; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .banana:active { transform: scale(0.9); }
+        .banana { 
+            width: 260px; filter: drop-shadow(0 0 15px rgba(251, 197, 49, 0.2));
+            cursor: pointer; transition: transform 0.05s ease; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        .banana:active { transform: scale(0.85) rotate(-5deg); }
 
+        /* Меню кнопок */
         .menu { 
-            width: 100%; background: var(--card-bg); padding: 20px; border-radius: 25px 25px 0 0;
-            display: flex; justify-content: space-around; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            width: 100%; background: var(--card-bg); padding: 25px 0; border-radius: 30px 30px 0 0;
+            display: flex; justify-content: center; gap: 15px; border-top: 2px solid #222;
         }
         .btn { 
-            background: #2a2a2a; border: none; color: white; padding: 12px 20px; 
-            border-radius: 12px; font-weight: bold; transition: 0.3s; width: 45%;
+            background: #252525; border: none; color: white; padding: 15px 25px; 
+            border-radius: 16px; font-size: 16px; font-weight: bold; transition: 0.2s;
+            box-shadow: 0 4px 0 #000;
         }
-        .btn-shop { border-bottom: 3px solid var(--accent); }
-        .btn-donate { border-bottom: 3px solid var(--diamond); opacity: 0.7; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+        .btn-shop { border-left: 4px solid var(--accent); }
+        .btn-donate { border-left: 4px solid var(--diamond); opacity: 0.8; }
 
-        /* Окно магазина */
+        /* Модальное окно магазина */
         #shop-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+            background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        .shop-card { background: var(--card-bg); padding: 20px; border-radius: 20px; width: 80%; text-align: center; }
-        .close-shop { margin-top: 20px; color: #ff4757; font-weight: bold; cursor: pointer; }
+        .shop-card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; border: 1px solid #333; }
+        .shop-item { 
+            background: #222; margin: 10px 0; padding: 15px; border-radius: 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .item-info { text-align: left; }
+        .buy-btn { background: var(--accent); color: black; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; }
+        .close-shop { margin-top: 30px; color: #ff4757; font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -54,22 +73,35 @@
     </div>
 
     <div class="main-clicker">
-        <img src="https://cdn-icons-png.flaticon.com/512/2909/2909808.png" class="banana" id="banana">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.png" class="banana" id="banana">
     </div>
 
     <div class="menu">
-        <button class="btn btn-shop" onclick="toggleShop()">Магазин 🛒</button>
-        <button class="btn btn-donate" onclick="alert('Магазин донатов скоро откроется!')">Донат 💎</button>
+        <button class="btn btn-shop" onclick="toggleShop()">🛒 МАГАЗИН</button>
+        <button class="btn btn-donate" onclick="alert('Магазин донатов в разработке!')">💎 ДОНАТ</button>
     </div>
 
     <div id="shop-modal">
         <div class="shop-card">
-            <h2>Улучшения</h2>
-            <p>Мульти-тап (ур. <span id="lp-lvl">1</span>)</p>
-            <button class="btn" onclick="buyUpgrade()" style="width: 100%; background: var(--accent); color: black;">
-                Купить за 10 💎
-            </button>
-            <div class="close-shop" onclick="toggleShop()">Закрыть</div>
+            <h2 style="margin-top:0">Магазин</h2>
+            
+            <div class="shop-item">
+                <div class="item-info">
+                    <b>Мульти-тап</b><br>
+                    <small>Ур. <span id="lp-lvl">1</span> (+1 к клику)</small>
+                </div>
+                <button class="buy-btn" onclick="buyUpgrade()">💎 <span id="upg-cost">10</span></button>
+            </div>
+
+            <div class="shop-item">
+                <div class="item-info">
+                    <b>50 Алмазов</b><br>
+                    <small>Обмен валют</small>
+                </div>
+                <button class="buy-btn" style="background: var(--diamond); color: white;" onclick="exchangeMoney()">🍌 500</button>
+            </div>
+
+            <div class="close-shop" onclick="toggleShop()">НАЗАД В ИГРУ</div>
         </div>
     </div>
 
@@ -83,30 +115,32 @@
         let upgradeCost = 10;
         let totalClicksForDiamond = 0;
 
-        const bananaBtn = document.getElementById('banana');
         const scoreDisp = document.getElementById('score');
         const diamondDisp = document.getElementById('diamonds');
+        const bananaBtn = document.getElementById('banana');
 
         bananaBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             bananas += clickPower;
-            totalClicksForDiamond += clickPower;
+            totalClicksForDiamond += 1;
             
-            // Логика алмазов: каждые 100 тапов даем 5+ алмазов
+            // За каждые 100 тапов даем 5+ алмазов
             if (totalClicksForDiamond >= 100) {
-                let bonus = Math.floor(Math.random() * 6) + 5; // 5, 6, 7, 8, 9 или 10
+                let bonus = Math.floor(Math.random() * 6) + 5; 
                 diamonds += bonus;
                 totalClicksForDiamond = 0;
                 tg.HapticFeedback.notificationOccurred('success');
             }
 
             updateDisplay();
-            tg.HapticFeedback.impactOccurred('medium');
+            tg.HapticFeedback.impactOccurred('light');
         });
 
         function updateDisplay() {
             scoreDisp.innerText = Math.floor(bananas);
             diamondDisp.innerText = diamonds;
+            document.getElementById('upg-cost').innerText = upgradeCost;
+            document.getElementById('lp-lvl').innerText = clickPower;
         }
 
         function toggleShop() {
@@ -118,12 +152,23 @@
             if (diamonds >= upgradeCost) {
                 diamonds -= upgradeCost;
                 clickPower += 1;
-                upgradeCost = Math.floor(upgradeCost * 1.5);
-                document.getElementById('lp-lvl').innerText = clickPower;
+                upgradeCost = Math.floor(upgradeCost * 1.8); // Цена растет!
                 updateDisplay();
-                alert('Улучшено! Теперь + ' + clickPower + ' за клик!');
+                tg.HapticFeedback.notificationOccurred('success');
             } else {
-                alert('Недостаточно алмазов! Тапай еще!');
+                alert('Нужно больше алмазов! 💎');
+            }
+        }
+
+        function exchangeMoney() {
+            if (bananas >= 500) {
+                bananas -= 500;
+                diamonds += 50;
+                updateDisplay();
+                alert('Успешный обмен! +50 💎');
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                alert('Недостаточно бананов! 🍌');
             }
         }
     </script>
