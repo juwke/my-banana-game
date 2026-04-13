@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker Save & Loan</title>
+    <title>Banana Clicker - Manual Save & Custom Loan</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #f1c40f; --diamond: #3498db; --danger: #e74c3c; }
+        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #f1c40f; --diamond: #3498db; --danger: #e74c3c; --success: #27ae60; }
         body { 
             background-color: var(--main-bg); color: white; font-family: sans-serif;
             display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden;
         }
         .header { 
-            display: flex; gap: 15px; margin-top: 20px; background: var(--card-bg); 
-            padding: 10px 20px; border-radius: 20px; border: 1px solid #333;
+            display: flex; gap: 10px; margin-top: 15px; background: var(--card-bg); 
+            padding: 10px 15px; border-radius: 15px; border: 1px solid #333;
         }
-        .stat { text-align: center; min-width: 70px; }
-        .stat-val { font-size: 20px; font-weight: bold; display: block; }
-        .stat-label { font-size: 10px; color: #777; }
+        .stat { text-align: center; min-width: 65px; }
+        .stat-val { font-size: 18px; font-weight: bold; display: block; }
+        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; }
 
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .banana-emoji { font-size: 130px; cursor: pointer; transition: transform 0.05s; -webkit-tap-highlight-color: transparent; }
+        .banana-emoji { font-size: 120px; cursor: pointer; transition: transform 0.05s; -webkit-tap-highlight-color: transparent; }
         .banana-emoji:active { transform: scale(0.8); }
 
         .menu { 
             width: 100%; background: var(--card-bg); padding: 20px 0; border-radius: 25px 25px 0 0;
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; border-top: 1px solid #333;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-left: 15px; padding-right: 15px;
+            box-sizing: border-box; border-top: 1px solid #333;
         }
         .btn { 
-            background: #222; border: none; color: white; padding: 12px 20px; 
-            border-radius: 15px; font-weight: bold; font-size: 14px;
+            background: #222; border: none; color: white; padding: 12px; 
+            border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer;
         }
-        .btn-save { background: #27ae60; }
-        .btn-loan { background: var(--danger); }
+        .btn-save { background: var(--success); grid-column: span 2; }
+        .btn-loan { border-bottom: 3px solid var(--danger); }
+        .btn-donate { border-bottom: 3px solid var(--diamond); }
+        .btn-shop { border-bottom: 3px solid var(--accent); }
 
         #modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+            background: rgba(0,0,0,0.96); flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; width: 85%; text-align: center; border: 1px solid #444; }
-        .close { margin-top: 20px; color: #777; cursor: pointer; display: block; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 80%; text-align: center; border: 1px solid #444; }
+        input { 
+            width: 100%; padding: 10px; margin: 15px 0; border-radius: 10px; border: 1px solid #444; 
+            background: #000; color: white; text-align: center; font-size: 18px; box-sizing: border-box;
+        }
+        .close { margin-top: 20px; color: #777; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -55,9 +62,11 @@
     </div>
 
     <div class="menu">
-        <button class="btn" onclick="openModal('shop')">МАГАЗИН</button>
-        <button class="btn btn-loan" onclick="openModal('loan')">ЗАЙМ 💸</button>
-        <button class="btn btn-save" onclick="saveGame()">СОХРАНИТЬ</button>
+        <button class="btn btn-shop" onclick="openModal('shop')">МАГАЗИН</button>
+        <button class="btn btn-loan" onclick="openModal('loan')">ЗАЙМ</button>
+        <button class="btn btn-donate" onclick="alert('Магазин донатов в разработке!')">ДОНАТ</button>
+        <button class="btn" onclick="alert('Настройки скоро!')">ОПЦИИ</button>
+        <button class="btn btn-save" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
     </div>
 
     <div id="modal">
@@ -69,17 +78,10 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Данные игрока
         let data = {
-            bananas: 0,
-            diamonds: 0,
-            clickPower: 1,
-            upgCost: 10,
-            loan: 0,
-            loanTime: 0
+            bananas: 0, diamonds: 0, clickPower: 1, upgCost: 10, loan: 0, loanTime: 0
         };
 
-        // Загрузка
         function loadGame() {
             const saved = localStorage.getItem('bananaSave');
             if (saved) {
@@ -89,11 +91,11 @@
             }
         }
 
+        // Теперь сохранение ТОЛЬКО по кнопке
         function saveGame() {
             localStorage.setItem('bananaSave', JSON.stringify(data));
             tg.HapticFeedback.notificationOccurred('success');
-            tg.MainButton.setText("СОХРАНЕНО!").show();
-            setTimeout(() => tg.MainButton.hide(), 2000);
+            alert("Прогресс успешно сохранен!");
         }
 
         function updateDisplay() {
@@ -102,7 +104,6 @@
             document.getElementById('loan-stat').innerText = data.loan;
         }
 
-        // Клик
         document.getElementById('banana').addEventListener('touchstart', (e) => {
             e.preventDefault();
             data.bananas += data.clickPower;
@@ -110,29 +111,27 @@
             tg.HapticFeedback.impactOccurred('medium');
         });
 
-        // Модалки
         function openModal(type) {
             const mc = document.getElementById('modal-content');
             if (type === 'shop') {
-                mc.innerHTML = `<h2>Магазин</h2>
-                    <p>Мульти-тап (Ур. ${data.clickPower})</p>
-                    <button class="btn" onclick="buyUpgrade()">Купить за ${data.upgCost} 💎</button>
+                mc.innerHTML = `<h3>Магазин</h3>
+                    <p>Мульти-тап: Ур. ${data.clickPower}</p>
+                    <button class="btn btn-shop" onclick="buyUpgrade()">Улучшить (${data.upgCost} 💎)</button>
                     <hr style="border:1px solid #333; margin:15px 0">
                     <p>Обмен: 500 🍌 -> 50 💎</p>
-                    <button class="btn" onclick="exchange()">Обменять</button>`;
+                    <button class="btn" onclick="exchange()">ОБМЕНЯТЬ</button>`;
             } else if (type === 'loan') {
-                mc.innerHTML = `<h2>Банк</h2>
-                    <p>Возьми 1000 🍌 сейчас!</p>
-                    <p style="font-size:12px; color:gray">Нужно вернуть через 24 часа, иначе спишем принудительно.</p>
-                    <button class="btn btn-loan" onclick="takeLoan()">ВЗЯТЬ 1000 🍌</button>
-                    <button class="btn" style="margin-top:10px" onclick="payLoan()">ВЕРНУТЬ ДОЛГ</button>`;
+                mc.innerHTML = `<h3>Взять заём</h3>
+                    <p>Введите сумму (макс. 100,000):</p>
+                    <input type="number" id="loan-amount" placeholder="0" max="100000">
+                    <button class="btn btn-loan" style="width:100%" onclick="takeLoan()">ВЗЯТЬ МОНЕТЫ</button>
+                    <button class="btn" style="width:100%; margin-top:10px" onclick="payLoan()">ВЕРНУТЬ ДОЛГ</button>`;
             }
             document.getElementById('modal').style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-        // Экономика
         function buyUpgrade() {
             if (data.diamonds >= data.upgCost) {
                 data.diamonds -= data.upgCost;
@@ -140,7 +139,7 @@
                 data.upgCost *= 2;
                 updateDisplay();
                 closeModal();
-            } else { alert("Мало алмазов!"); }
+            } else { alert("Недостаточно алмазов!"); }
         }
 
         function exchange() {
@@ -151,15 +150,18 @@
             }
         }
 
-        // Логика Займа
         function takeLoan() {
-            if (data.loan > 0) { alert("У тебя уже есть долг!"); return; }
-            data.loan = 1000;
-            data.bananas += 1000;
+            let amt = parseInt(document.getElementById('loan-amount').value);
+            if (isNaN(amt) || amt <= 0) { alert("Введите корректную сумму!"); return; }
+            if (amt > 100000) { alert("Максимальный заём — 100,000!"); return; }
+            if (data.loan > 0) { alert("Сначала верните старый долг!"); return; }
+            
+            data.loan = amt;
+            data.bananas += amt;
             data.loanTime = Date.now();
-            saveGame();
             updateDisplay();
             closeModal();
+            alert("Вы взяли " + amt + " бананов в долг на 24 часа!");
         }
 
         function payLoan() {
@@ -169,25 +171,21 @@
                 data.loanTime = 0;
                 updateDisplay();
                 alert("Долг погашен!");
-                saveGame();
-            } else { alert("Недостаточно бананов для оплаты!"); }
+            } else { alert("Недостаточно бананов для выплаты!"); }
         }
 
         function checkLoanStatus() {
             if (data.loan > 0 && data.loanTime > 0) {
                 const dayInMs = 24 * 60 * 60 * 1000;
                 if (Date.now() - data.loanTime > dayInMs) {
-                    data.bananas -= data.loan; // Принудительное списание
+                    data.bananas -= data.loan;
                     data.loan = 0;
                     data.loanTime = 0;
-                    alert("Время займа вышло! Бананы списаны.");
-                    saveGame();
+                    alert("Время займа истекло! Сумма списана автоматически.");
                 }
             }
         }
 
-        // Авто-сохранение каждые 10 секунд
-        setInterval(saveGame, 10000);
         loadGame();
     </script>
 </body>
