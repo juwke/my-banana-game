@@ -3,48 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Оптимизация</title>
+    <title>Banana Clicker - Final</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; --stars: #ff9f43; }
         body { background: var(--main-bg); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* Шапка */
+        /* ЭКРАН ЗАГРУЗКИ */
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; }
+        .loader { width: 45px; height: 45px; border: 4px solid #222; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #fact-text { font-size: 13px; color: var(--accent); margin-bottom: 25px; line-height: 1.5; min-height: 60px; }
+        .skip-btn { background: #222; border: 1px solid #444; color: #fff; padding: 12px 25px; border-radius: 25px; font-size: 11px; cursor: pointer; }
+
+        /* ОСНОВНОЙ ИНТЕРФЕЙС */
         .header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #333; width: 88%; }
         .stat { text-align: center; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; }
-        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; }
+        .stat-label { font-size: 9px; color: #777; }
 
-        /* Клик */
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .click-zone { width: 200px; height: 200px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; user-select: none; }
-        .click-zone:active { transform: scale(0.92); }
+        .click-zone { width: 220px; height: 220px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.05s; cursor: pointer; font-size: 100px; user-select: none; }
+        .click-zone:active { transform: scale(0.95); }
 
-        /* Меню */
-        .menu { width: 100%; background: var(--card-bg); padding: 20px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #333; padding-bottom: 30px; }
+        /* КНОПКИ МЕНЮ */
+        .menu { width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #333; }
         .btn { background: #222; border: none; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
         .btn-donate { grid-column: span 2; background: linear-gradient(45deg, #f0932b, #ffbe76); color: black; font-size: 13px; text-transform: uppercase; }
-        .btn-save { background: var(--success); color: black; border-bottom: 3px solid #27ae60; }
-        .btn-fin { border-bottom: 3px solid var(--diamond); }
-
-        /* Модалки */
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; border: 1px solid #444; text-align: center; max-height: 80vh; overflow-y: auto; }
         
-        /* Вкладки */
-        .tab-menu { display: flex; gap: 5px; margin-bottom: 15px; background: #000; padding: 5px; border-radius: 12px; }
-        .tab-btn { flex: 1; padding: 8px; font-size: 9px; background: transparent; border: none; color: #555; border-radius: 8px; font-weight: bold; }
-        .tab-btn.active { background: #333; color: white; }
+        /* КНОПКА СОХРАНИТЬ (ВНИЗУ) */
+        .save-footer { width: 100%; background: var(--card-bg); padding: 10px 0 25px 0; display: flex; justify-content: center; }
+        .btn-save-long { width: 90%; background: var(--success); color: black; padding: 18px; border-radius: 15px; font-weight: 900; border: none; text-transform: uppercase; box-shadow: 0 4px 0 #27ae60; }
 
-        /* Стили элементов */
+        /* МОДАЛЬНЫЕ ОКНА */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 500; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; border: 1px solid #444; text-align: center; max-height: 75vh; overflow-y: auto; }
+        
+        /* ДИСКЛЕЙМЕР */
+        .long-disclaimer { font-size: 10px; color: #bbb; text-align: left; background: #000; padding: 15px; border-radius: 12px; border: 1px solid #444; line-height: 1.5; margin-bottom: 15px; }
+
         .cur-row { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .cur-opt { width: 65px; height: 65px; border-radius: 12px; border: 2px solid #333; background: #222; font-size: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .cur-opt.selected { border-color: var(--accent); background: #333; transform: scale(1.05); }
+        .cur-opt { width: 60px; height: 60px; border-radius: 12px; border: 2px solid #333; background: #222; font-size: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .cur-opt.selected { border-color: var(--accent); background: #333; }
         input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; }
-        .disclaimer { font-size: 10px; color: #aaa; background: rgba(232, 65, 24, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: left; }
     </style>
 </head>
 <body>
+
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <p id="fact-text">Инициализация банановой экономики...</p>
+        <button class="skip-btn" onclick="skipLoading()">ПРОПУСТИТЬ ЗАГРУЗКУ</button>
+    </div>
 
     <div class="header">
         <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-label">🍌</span></div>
@@ -52,14 +62,19 @@
         <div class="stat"><span class="stat-val" id="crypto-stat" style="color:var(--crypto)">0</span><span class="stat-label">₿</span></div>
     </div>
 
-    <div class="main-clicker"><div class="click-zone" id="banana" style="font-size:90px">🍌</div></div>
+    <div class="main-clicker">
+        <div class="click-zone" id="banana">🍌</div>
+    </div>
 
     <div class="menu">
         <button class="btn btn-donate" onclick="openDonate()">ДОНАТ ⭐️</button>
-        <button class="btn btn-fin" onclick="openFinances('send')">ФИНАНСЫ</button>
-        <button class="btn" onclick="openShop()">МАГАЗИН</button>
-        <button class="btn" onclick="openOptions()">ОПЦИИ ⚙️</button>
-        <button class="btn btn-save" onclick="saveGame()">СОХРАНИТЬ</button>
+        <button class="btn" onclick="openFinances()">ФИНАНСЫ 💳</button>
+        <button class="btn" onclick="openShop()">МАГАЗИН 🛒</button>
+        <button class="btn" onclick="openOptions()" style="grid-column: span 2">ОПЦИИ И СБРОС ⚙️</button>
+    </div>
+
+    <div class="save-footer">
+        <button class="btn-save-long" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
     </div>
 
     <div id="modal">
@@ -69,10 +84,35 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        // Сброшенные цены и параметры
-        let defaultData = { bananas: 0, diamonds: 0, crypto: 0, clickPower: 1, upgCost: 50, doubleCost: 5, loanB: 0, loanD: 0, loanC: 0, history: [] };
+        let defaultData = { bananas: 0, diamonds: 0, crypto: 0, clickPower: 1, upgCost: 100, doubleCost: 5, loanB: 0, loanD: 0, loanC: 0 };
         let data = JSON.parse(JSON.stringify(defaultData));
         let cur = 'bananas';
+
+        // ФАКТЫ ДЛЯ ЗАГРУЗКИ
+        const facts = [
+            "Игра находится в активной разработке. Баги — это фичи!",
+            "Автор проекта официально заявляет: в игре НЕТ 18+ или ЛГБТ контента.",
+            "Это всего лишь симулятор кликера, созданный для фана.",
+            "Если нашли ошибку, пишите админу @Bulba_73.",
+            "Крипто-бананы — валюта будущего (но только в этой игре).",
+            "Помните: займы нужно возвращать вовремя!"
+        ];
+
+        let loadTimer;
+        function startLoading() {
+            let i = 0;
+            loadTimer = setInterval(() => {
+                document.getElementById('fact-text').innerText = facts[i % facts.length];
+                i++;
+            }, 3000);
+            setTimeout(skipLoading, 15000); 
+        }
+
+        function skipLoading() {
+            clearInterval(loadTimer);
+            document.getElementById('loading-screen').style.display = 'none';
+            loadGame();
+        }
 
         function loadGame() {
             const saved = localStorage.getItem('bananaSave');
@@ -86,98 +126,73 @@
             document.getElementById('crypto-stat').innerText = data.crypto;
         }
 
-        document.getElementById('banana').onclick = () => {
+        document.getElementById('banana').onclick = (e) => {
             data.bananas += data.clickPower;
             updateDisplay();
-            tg.HapticFeedback.impactOccurred('light');
+            tg.HapticFeedback.impactOccurred('medium');
         };
+
+        // ФИНАНСЫ С ДЛИННЫМ ДИСКЛЕЙМЕРОМ
+        function openFinances() {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-content').innerHTML = `
+                <h3>БАНК И ЗАЙМЫ</h3>
+                <div class="long-disclaimer">
+                    <b>ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ:</b> Данный программный продукт является независимой разработкой и находится на стадии Альфа-тестирования. Автор проекта <b>не распространяет</b> и не упоминает материалы, связанные с 18+ контентом или ЛГБТ-пропагандой. Игра предназначена для широкой аудитории. <br><br>
+                    Пожалуйста, учитывайте, что в коде могут присутствовать ошибки и баги, которые исправляются по мере их обнаружения. Все финансовые операции внутри игры являются симуляцией и не имеют отношения к реальным деньгам.
+                </div>
+                <div class="cur-row">
+                    <div class="cur-opt" id="l-b" onclick="setF('bananas','l-b')">🍌</div>
+                    <div class="cur-opt" id="l-d" onclick="setF('diamonds','l-d')">💎</div>
+                    <div class="cur-opt" id="l-c" onclick="setF('crypto','l-c')">₿</div>
+                </div>
+                <input id="f-amt" type="number" placeholder="Сумма займа">
+                <button class="btn" style="background:var(--danger); width:100%; margin-bottom:10px" onclick="doLoan()">ПОЛУЧИТЬ КРЕДИТ</button>
+                <button class="btn" style="background:var(--success); color:black; width:100%" onclick="doRepay()">ПОГАСИТЬ ВСЕ ДОЛГИ</button>
+            `;
+            setF('bananas', 'l-b');
+        }
 
         // МАГАЗИН
         function openShop() {
             document.getElementById('modal').style.display = 'flex';
             document.getElementById('modal-content').innerHTML = `
                 <h3>МАГАЗИН</h3>
-                <button class="btn" style="width:100%; margin-bottom:10px; border-left:4px solid var(--accent)" onclick="buyUpg()">+1 К КЛИКУ (${data.upgCost} 🍌)</button>
-                <button class="btn" style="width:100%; border-left:4px solid var(--crypto)" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
-                <p style="font-size:10px; color:#555; margin-top:10px">Цены сброшены и растут медленно</p>
+                <button class="btn" style="width:100%; margin-bottom:12px; border-bottom:3px solid var(--accent)" onclick="buyUpg()">+1 К КЛИКУ<br><small>Цена: ${data.upgCost} 🍌</small></button>
+                <button class="btn" style="width:100%; border-bottom:3px solid var(--crypto)" onclick="buyDouble()">УДВОИТЬ ТАП<br><small>Цена: ${data.doubleCost} ₿</small></button>
             `;
         }
 
         function buyUpg() { if(data.bananas >= data.upgCost){ data.bananas -= data.upgCost; data.clickPower++; data.upgCost *= 2; updateDisplay(); openShop(); } }
-        function buyDouble() { if(data.crypto >= data.doubleCost){ data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost = Math.floor(data.doubleCost * 1.2); updateDisplay(); openShop(); } }
-
-        // ФИНАНСЫ (ОБЪЕДИНЕНО)
-        function openFinances(tab) {
-            document.getElementById('modal').style.display = 'flex';
-            const mc = document.getElementById('modal-content');
-            let tabs = `<div class="tab-menu">
-                <button class="tab-btn ${tab==='send'?'active':''}" onclick="openFinances('send')">ПЕРЕВОД</button>
-                <button class="tab-btn ${tab==='loan'?'active':''}" onclick="openFinances('loan')">ЗАЙМЫ</button>
-                <button class="tab-btn ${tab==='hist'?'active':''}" onclick="openFinances('hist')">ИСТОРИЯ</button>
-            </div>`;
-
-            if(tab === 'send') {
-                mc.innerHTML = tabs + `<h3>ПЕРЕВОД</h3>
-                <input id="f-user" placeholder="@username">
-                <input id="f-amt" type="number" placeholder="Сумма">
-                <div class="cur-row">
-                    <div class="cur-opt" id="s-b" onclick="setF('bananas','s-b')">🍌</div>
-                    <div class="cur-opt" id="s-d" onclick="setF('diamonds','s-d')">💎</div>
-                    <div class="cur-opt" id="s-c" onclick="setF('crypto','s-c')">₿</div>
-                </div>
-                <button class="btn" style="background:var(--success); width:100%; color:black" onclick="doSend()">ОТПРАВИТЬ</button>`;
-                setF('bananas', 's-b');
-            } else if(tab === 'loan') {
-                mc.innerHTML = tabs + `<h3>ЗАЙМЫ</h3>
-                <div class="disclaimer">Внимание: займы нужно возвращать!</div>
-                <div class="cur-row">
-                    <div class="cur-opt" id="l-b" onclick="setF('bananas','l-b')">🍌<div style="font-size:9px;color:red">${data.loanB}</div></div>
-                    <div class="cur-opt" id="l-d" onclick="setF('diamonds','l-d')">💎<div style="font-size:9px;color:red">${data.loanD}</div></div>
-                    <div class="cur-opt" id="l-c" onclick="setF('crypto','l-c')">₿<div style="font-size:9px;color:red">${data.loanC}</div></div>
-                </div>
-                <input id="l-val" type="number" placeholder="Сколько берем?">
-                <button class="btn" style="background:var(--danger); width:100%; margin-bottom:8px" onclick="doLoan()">ВЗЯТЬ В ДОЛГ</button>
-                <button class="btn" style="background:var(--success); width:100%; color:black" onclick="doRepay()">ВЕРНУТЬ ВСЁ</button>`;
-                setF('bananas', 'l-b');
-            } else {
-                mc.innerHTML = tabs + `<h3>ИСТОРИЯ</h3><div style="text-align:left; font-size:10px">${data.history.slice(-10).map(h=>`<div>• ${h}</div>`).reverse().join('') || 'Тут пока пусто'}</div>`;
-            }
-        }
+        function buyDouble() { if(data.crypto >= data.doubleCost){ data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost = Math.floor(data.doubleCost * 1.25); updateDisplay(); openShop(); } }
 
         // ДОНАТ
         function openDonate() {
             document.getElementById('modal').style.display = 'flex';
             document.getElementById('modal-content').innerHTML = `
-                <h3 style="color:var(--stars)">ДОНАТ МАГАЗИН</h3>
-                <div style="background:#222; padding:15px; border-radius:15px; margin-bottom:10px" onclick="tg.openTelegramLink('https://t.me/Bulba_73?text=Привет! Хочу купить 100 крипты за 1 звезду!')">
-                    <b>+100 ₿</b><br><small>Цена: 1 ⭐️</small>
+                <h3 style="color:var(--stars)">ДОНАТ ⭐️</h3>
+                <div style="background:#222; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid var(--stars)" onclick="tg.openTelegramLink('https://t.me/Bulba_73?text=Хочу купить 100 крипты за 1 звезду')">
+                    <b>+100 ₿</b> за 1 ⭐️
                 </div>
-                <div style="background:#222; padding:15px; border-radius:15px" onclick="tg.openTelegramLink('https://t.me/Bulba_73?text=Привет! Хочу купить 1000 крипты за 10 звезд!')">
-                    <b>+1000 ₿</b><br><small>Цена: 10 ⭐️</small>
+                <div style="background:#222; padding:15px; border-radius:15px; border:1px solid var(--stars)" onclick="tg.openTelegramLink('https://t.me/Bulba_73?text=Хочу купить 1000 крипты за 10 звезд')">
+                    <b>+1000 ₿</b> за 10 ⭐️
                 </div>
             `;
         }
 
-        // ОПЦИИ (СБРОС)
         function openOptions() {
             document.getElementById('modal').style.display = 'flex';
-            document.getElementById('modal-content').innerHTML = `
-                <h3>НАСТРОЙКИ</h3>
-                <button class="btn" style="background:var(--danger); width:100%" onclick="resetGame()">СБРОСИТЬ ВЕСЬ ПРОГРЕСС</button>
-                <p style="font-size:10px; color:#555; margin-top:15px">Версия 2.0 Оптимизированная</p>
-            `;
+            document.getElementById('modal-content').innerHTML = `<h3>ОПЦИИ</h3><button class="btn" style="background:var(--danger); width:100%" onclick="resetGame()">ОБНУЛИТЬ ПРОГРЕСС</button>`;
         }
 
-        function resetGame() { if(confirm("Ты уверен? Весь прогресс будет удален!")){ data = JSON.parse(JSON.stringify(defaultData)); localStorage.clear(); updateDisplay(); closeModal(); } }
-        
         function setF(c, id) { cur = c; document.querySelectorAll('.cur-opt').forEach(o => o.classList.remove('selected')); document.getElementById(id).classList.add('selected'); }
-        function doSend() { let a = parseInt(document.getElementById('f-amt').value); if(a > 0 && data[cur] >= a){ data[cur]-=a; data.history.push(`Отправил ${a} ${cur}`); updateDisplay(); closeModal(); } }
-        function doLoan() { let a = parseInt(document.getElementById('l-val').value); if(a>0){ data[cur]+=a; if(cur==='bananas')data.loanB+=a; else if(cur==='diamonds')data.loanD+=a; else data.loanC+=a; updateDisplay(); closeModal(); } }
+        function doLoan() { let a = parseInt(document.getElementById('f-amt').value); if(a>0){ data[cur]+=a; if(cur==='bananas')data.loanB+=a; else if(cur==='diamonds')data.loanD+=a; else data.loanC+=a; updateDisplay(); closeModal(); } }
         function doRepay() { if(data.bananas>=data.loanB && data.diamonds>=data.loanD && data.crypto>=data.loanC){ data.bananas-=data.loanB; data.diamonds-=data.loanD; data.crypto-=data.loanC; data.loanB=0; data.loanD=0; data.loanC=0; updateDisplay(); closeModal(); } }
-
-        function saveGame() { localStorage.setItem('bananaSave', JSON.stringify(data)); tg.showAlert("Прогресс сохранен!"); }
+        function resetGame() { if(confirm("Удалить всё?")){ data = JSON.parse(JSON.stringify(defaultData)); localStorage.clear(); updateDisplay(); closeModal(); } }
+        function saveGame() { localStorage.setItem('bananaSave', JSON.stringify(data)); tg.showAlert("Игра сохранена успешно!"); }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
-        window.onload = loadGame;
+        
+        window.onload = startLoading;
     </script>
 </body>
 </html>
