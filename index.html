@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Pro Edition</title>
+    <title>Banana Clicker - Bulba Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; }
@@ -12,7 +12,6 @@
             display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden;
         }
 
-        /* Загрузка и Дисклеймер */
         #loading-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #disclaimer { 
             position: fixed; inset: 0; background: #000; z-index: 999; display: none; 
@@ -26,66 +25,59 @@
             background: var(--card-bg); padding: 10px 15px; border-radius: 15px; border: 1px solid #333;
         }
         .stat { text-align: center; min-width: 80px; padding: 5px; }
-        .stat-val { font-size: 18px; font-weight: bold; display: block; }
-        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; }
+        .stat-val { font-size: 16px; font-weight: bold; display: block; }
+        .stat-label { font-size: 8px; color: #777; text-transform: uppercase; }
 
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
         .click-zone {
-            width: 230px; height: 230px; border: 4px solid var(--accent); border-radius: 50%;
+            width: 200px; height: 200px; border: 4px solid var(--accent); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; position: relative;
             box-shadow: 0 0 30px rgba(251, 197, 49, 0.2); transition: transform 0.05s;
         }
-        .click-zone:active { transform: scale(0.95); }
-        .banana-emoji { font-size: 100px; user-select: none; }
+        .click-zone:active { transform: scale(0.92); }
+        .banana-emoji { font-size: 90px; user-select: none; }
 
         .menu { 
             width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0;
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; border-top: 1px solid #333;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #333;
         }
-        .btn { background: #222; border: none; color: white; padding: 12px 5px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .btn { background: #222; border: none; color: white; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
         .btn-bank { border-bottom: 3px solid var(--success); }
         .btn-shop { border-bottom: 3px solid var(--accent); }
         .btn-loan { border-bottom: 3px solid var(--danger); }
 
-        #modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            flex-direction: column; align-items: center; justify-content: center; z-index: 100;
-        }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; width: 85%; max-height: 70vh; overflow-y: auto; border: 1px solid #444; }
-        .history-item { font-size: 12px; padding: 5px; border-bottom: 1px solid #333; text-align: left; }
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 25px; width: 85%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; }
+        input { width: 85%; padding: 10px; margin: 8px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; }
+        .loan-group { margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <div class="loader"></div>
-        <p>Загрузка бананов...</p>
-    </div>
+    <div id="loading-screen"><div class="loader"></div><p>Загрузка...</p></div>
 
     <div id="disclaimer">
-        <h2>ВНИМАНИЕ</h2>
-        <p>Данное приложение является игрой. Автор (TG: <b>@Bulba_73</b>) не упоминает и не пропагандирует 18+ контент или ЛГБТ-материалы. Всё заработанное является виртуальным.</p>
-        <button class="btn btn-shop" style="width: 200px; margin-top: 20px;" onclick="closeDisclaimer()">Я ПОНЯЛ, ИГРАТЬ</button>
+        <h2>ДИСКЛЕЙМЕР</h2>
+        <p>Автор (TG: <b>@Bulba_73</b>) не упоминает о 18+ и ЛГБТ. Это игра.</p>
+        <button class="btn btn-shop" style="width: 200px; margin-top: 20px;" onclick="closeDisclaimer()">ИГРАТЬ</button>
     </div>
 
     <div class="header">
         <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-label">Бананы 🍌</span></div>
         <div class="stat"><span class="stat-val" id="diamonds" style="color:var(--diamond)">0</span><span class="stat-label">Алмазы 💎</span></div>
         <div class="stat"><span class="stat-val" id="crypto-stat" style="color:var(--crypto)">0</span><span class="stat-label">Крипто ₿</span></div>
-        <div class="stat"><span class="stat-val" id="loan-stat" style="color:var(--danger)">0</span><span class="stat-label">Долг 💸</span></div>
+        <div class="stat"><span class="stat-val" id="loan-stat" style="color:var(--danger)">0</span><span class="stat-label">Активный Долг</span></div>
     </div>
 
-    <div class="main-clicker">
-        <div class="click-zone" id="banana">
-            <div class="banana-emoji">🍌</div>
-        </div>
-    </div>
+    <div class="main-clicker"><div class="click-zone" id="banana"><div class="banana-emoji">🍌</div></div></div>
 
     <div class="menu">
         <button class="btn btn-shop" onclick="openModal('shop')">МАГАЗИН</button>
         <button class="btn btn-bank" onclick="openModal('bank')">БАНК</button>
-        <button class="btn btn-loan" onclick="openModal('loan')">ЗАЙМ</button>
-        <button class="btn" style="grid-column: span 3; background: var(--success);" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
+        <button class="btn btn-loan" onclick="openModal('loan')">ЗАЙМЫ</button>
+        <button class="btn" onclick="alert('Скоро!')">ДОНАТ</button>
+        <button class="btn" onclick="alert('В разработке')">ОПЦИИ</button>
+        <button class="btn" style="background:var(--success); grid-column: span 2;" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
     </div>
 
     <div id="modal">
@@ -100,16 +92,16 @@
         let data = {
             bananas: 0, diamonds: 0, crypto: 0,
             clickPower: 1, upgCost: 100, doubleCost: 1,
-            loan: 0, history: []
+            loanB: 0, loanD: 0, loanC: 0, loanTime: 0
         };
 
-        // Логика загрузки
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('disclaimer').style.display = 'flex';
             }, 2000); 
             loadGame();
+            setInterval(checkLoans, 10000); // Проверка каждые 10 сек
         };
 
         function closeDisclaimer() { document.getElementById('disclaimer').style.display = 'none'; }
@@ -122,14 +114,14 @@
         function saveGame() {
             localStorage.setItem('bananaSave', JSON.stringify(data));
             tg.HapticFeedback.notificationOccurred('success');
-            alert("Данные в безопасности!");
+            alert("Прогресс сохранен!");
         }
 
         function updateDisplay() {
             document.getElementById('score').innerText = Math.floor(data.bananas);
             document.getElementById('diamonds').innerText = data.diamonds;
             document.getElementById('crypto-stat').innerText = data.crypto;
-            document.getElementById('loan-stat').innerText = data.loan;
+            document.getElementById('loan-stat').innerText = (data.loanB + data.loanD + data.loanC);
         }
 
         document.getElementById('banana').onclick = () => {
@@ -139,85 +131,106 @@
             tg.HapticFeedback.impactOccurred('medium');
         };
 
+        // ЛОГИКА ПРИНУДИТЕЛЬНОГО СПИСАНИЯ
+        function checkLoans() {
+            if (data.loanTime > 0 && (Date.now() - data.loanTime > 86400000)) {
+                let msg = "ВНИМАНИЕ! С вашего баланса списаны средства: ";
+                if(data.loanB > 0) msg += `\n- ${data.loanB} 🍌`;
+                if(data.loanD > 0) msg += `\n- ${data.loanD} 💎`;
+                if(data.loanC > 0) msg += `\n- ${data.loanC} ₿`;
+                msg += "\nПричина: вы не вернули долг в течение 24 часов!";
+
+                data.bananas = Math.max(0, data.bananas - data.loanB);
+                data.diamonds = Math.max(0, data.diamonds - data.loanD);
+                data.crypto = Math.max(0, data.crypto - data.loanC);
+                
+                data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
+                
+                updateDisplay();
+                alert(msg);
+                saveGame();
+            }
+        }
+
         function openModal(type) {
             const mc = document.getElementById('modal-content');
             if (type === 'shop') {
                 mc.innerHTML = `<h3>Магазин</h3>
-                    <button class="btn btn-shop" style="width:100%" onclick="buyUpg()">+1 КЛИК (${data.upgCost} 🍌)</button>
-                    <br><br>
-                    <button class="btn" style="background:var(--crypto); width:100%" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
-                    <br><br>
-                    <button class="btn" style="background:var(--diamond); width:100%" onclick="buyCrypto()">1 ₿ (10000 💎)</button>`;
+                    <button class="btn" style="width:100%; margin-bottom:5px;" onclick="buyUpg()">+1 КЛИК (${data.upgCost} 🍌)</button>
+                    <button class="btn" style="background:var(--crypto); width:100%; margin-bottom:5px;" onclick="buyDouble()">УДВОИТЬ (${data.doubleCost} ₿)</button>
+                    <button class="btn" style="background:var(--diamond); width:100%; margin-bottom:5px;" onclick="buyCrypto()">1 ₿ (10000 💎)</button>
+                    <button class="btn" style="width:100%; background:var(--accent); color:black;" onclick="exchange()">ОБМЕН (500 🍌 -> 50 💎)</button>`;
             } else if (type === 'bank') {
-                mc.innerHTML = `<h3>Банк & Переводы</h3>
-                    <input id="target-user" placeholder="@username" style="width:90%; padding:8px; border-radius:8px; border:none; margin-bottom:5px;">
-                    <input id="transfer-amt" type="number" placeholder="Сумма (макс 100к)" style="width:90%; padding:8px; border-radius:8px; border:none;">
-                    <div style="margin: 10px 0;">
+                mc.innerHTML = `<h3>Банк</h3>
+                    <input id="target-user" placeholder="@username">
+                    <input id="transfer-amt" type="number" placeholder="Сумма (макс 100к)">
+                    <div style="display:flex; gap:5px; justify-content:center;">
                         <button class="btn" onclick="send('bananas')">🍌</button>
                         <button class="btn" onclick="send('diamonds')">💎</button>
                         <button class="btn" onclick="send('crypto')">₿</button>
-                    </div>
-                    <h4>История:</h4>
-                    <div id="history-box">${data.history.map(h => `<div class="history-item">${h}</div>`).reverse().join('')}</div>`;
+                    </div>`;
             } else if (type === 'loan') {
-                mc.innerHTML = `<h3>Займ</h3>
-                    <p>Долг: ${data.loan}</p>
-                    <button class="btn btn-loan" style="width:100%" onclick="takeLoan()">ВЗЯТЬ 1000 🍌</button>
-                    <button class="btn" style="width:100%; margin-top:10px" onclick="payLoan()">ВЕРНУТЬ ВСЁ</button>`;
+                mc.innerHTML = `<h3>Кредитный Отдел</h3>
+                    <p style="font-size:11px; color:var(--danger)">Верните долг за 24ч, иначе спишем принудительно!</p>
+                    
+                    <div class="loan-group">
+                        <input id="amt-b" type="number" placeholder="Бананы (макс 1М)">
+                        <button class="btn" style="width:100%" onclick="takeAnyLoan('bananas', 1000000, 'amt-b')">ВЗЯТЬ 🍌</button>
+                    </div>
+
+                    <div class="loan-group">
+                        <input id="amt-d" type="number" placeholder="Алмазы (макс 100к)">
+                        <button class="btn" style="background:var(--diamond); width:100%" onclick="takeAnyLoan('diamonds', 100000, 'amt-d')">ВЗЯТЬ 💎</button>
+                    </div>
+
+                    <div class="loan-group">
+                        <input id="amt-c" type="number" placeholder="Крипто (макс 100)">
+                        <button class="btn" style="background:var(--crypto); width:100%" onclick="takeAnyLoan('crypto', 100, 'amt-c')">ВЗЯТЬ ₿</button>
+                    </div>
+                    
+                    <button class="btn" style="width:100%; background:var(--success); margin-top:10px;" onclick="payAllLoans()">ВЕРНУТЬ ВСЕ ДОЛГИ</button>`;
             }
             document.getElementById('modal').style.display = 'flex';
         }
 
-        function buyUpg() {
-            if (data.bananas >= data.upgCost) {
-                data.bananas -= data.upgCost;
-                data.clickPower++;
-                data.upgCost *= 2;
+        function takeAnyLoan(type, limit, inputId) {
+            let val = parseInt(document.getElementById(inputId).value);
+            if (val > 0 && val <= limit) {
+                if (type === 'bananas' && data.loanB === 0) { data.loanB = val; data.bananas += val; }
+                else if (type === 'diamonds' && data.loanD === 0) { data.loanD = val; data.diamonds += val; }
+                else if (type === 'crypto' && data.loanC === 0) { data.loanC = val; data.crypto += val; }
+                else { return alert("Сначала верните текущий долг этого типа!"); }
+
+                if (data.loanTime === 0) data.loanTime = Date.now();
                 updateDisplay(); closeModal();
+            } else { alert("Недопустимая сумма!"); }
+        }
+
+        function payAllLoans() {
+            if (data.bananas >= data.loanB && data.diamonds >= data.loanD && data.crypto >= data.loanC) {
+                data.bananas -= data.loanB;
+                data.diamonds -= data.loanD;
+                data.crypto -= data.loanC;
+                data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
+                updateDisplay();
+                alert("Все долги успешно возвращены!");
+                closeModal();
+            } else {
+                alert("Недостаточно средств на балансе для возврата всех долгов!");
             }
         }
 
-        function buyDouble() {
-            if (data.crypto >= data.doubleCost) {
-                data.crypto -= data.doubleCost;
-                data.clickPower *= 2;
-                data.doubleCost += 1;
-                updateDisplay(); closeModal();
-            }
-        }
-
-        function buyCrypto() {
-            if (data.diamonds >= 10000) {
-                data.diamonds -= 10000;
-                data.crypto++;
-                updateDisplay(); closeModal();
-            }
-        }
-
-        function takeLoan() {
-            if (data.loan === 0) {
-                data.loan = 1000; data.bananas += 1000;
-                addHistory("Взял займ: 1000 🍌");
-                updateDisplay(); closeModal();
-            }
-        }
+        function exchange() { if (data.bananas >= 500) { data.bananas -= 500; data.diamonds += 50; updateDisplay(); } }
+        function buyUpg() { if (data.bananas >= data.upgCost) { data.bananas -= data.upgCost; data.clickPower++; data.upgCost *= 2; updateDisplay(); } }
+        function buyDouble() { if (data.crypto >= data.doubleCost) { data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost++; updateDisplay(); } }
+        function buyCrypto() { if (data.diamonds >= 10000) { data.diamonds -= 10000; data.crypto++; updateDisplay(); } }
 
         function send(type) {
             let user = document.getElementById('target-user').value;
             let amt = parseInt(document.getElementById('transfer-amt').value);
-            if (!user || amt <= 0 || amt > 100000) return alert("Ошибка суммы или ника!");
-            
-            if (data[type] >= amt) {
-                data[type] -= amt;
-                addHistory(`Перевод ${amt} ${type} пользователю ${user}`);
-                alert("Отправлено!");
-                updateDisplay(); closeModal();
-            } else { alert("Недостаточно средств!"); }
-        }
-
-        function addHistory(msg) {
-            data.history.push(`${new Date().toLocaleTimeString()} - ${msg}`);
-            if (data.history.length > 10) data.history.shift();
+            if (user && amt > 0 && amt <= 100000 && data[type] >= amt) {
+                data[type] -= amt; alert("Отправлено!"); updateDisplay(); closeModal();
+            } else { alert("Ошибка перевода!"); }
         }
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
