@@ -3,43 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Final Fix</title>
+    <title>Banana Clicker - Final Version</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; }
+        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; --stars: #ff9f43; }
         body { background: var(--main-bg); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden; }
 
-        .header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #333; width: 85%; }
+        /* Шапка с балансом */
+        .header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #333; width: 88%; }
         .stat { text-align: center; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; }
         .stat-label { font-size: 9px; color: #777; text-transform: uppercase; }
 
+        /* Зона клика */
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .click-zone { width: 220px; height: 220px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; }
-        .click-zone:active { transform: scale(0.95); }
+        .click-zone { width: 200px; height: 200px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; }
+        .click-zone:active { transform: scale(0.92); }
 
-        .menu { width: 100%; background: var(--card-bg); padding: 20px; border-radius: 35px 35px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #333; }
-        .btn { background: #222; border: none; color: white; padding: 14px; border-radius: 15px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        /* Нижнее меню */
+        .menu { width: 100%; background: var(--card-bg); padding: 20px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #333; padding-bottom: 30px; }
+        .btn { background: #222; border: none; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
         .btn-bank { border-bottom: 3px solid var(--success); }
-        .btn-debt { border-bottom: 3px solid var(--danger); background: #2a1010; }
+        .btn-debt { border-bottom: 3px solid var(--danger); background: #221111; }
+        .btn-donate { grid-column: span 2; background: linear-gradient(45deg, #f0932b, #ffbe76); color: black; font-size: 13px; margin-bottom: 5px; }
 
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 30px; width: 85%; border: 1px solid #444; text-align: center; }
+        /* Модальные окна */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; border: 1px solid #444; text-align: center; }
         
-        .disclaimer { font-size: 11px; color: #aaa; background: rgba(232, 65, 24, 0.1); padding: 10px; border-radius: 10px; margin-bottom: 15px; line-height: 1.4; border: 1px solid rgba(232, 65, 24, 0.2); }
-        
-        .tab-menu { display: flex; gap: 5px; margin-bottom: 20px; background: #000; padding: 5px; border-radius: 15px; }
-        .tab-btn { flex: 1; padding: 10px; font-size: 10px; background: transparent; border: none; color: #666; border-radius: 10px; }
-        .tab-btn.active { background: var(--success); color: white; font-weight: bold; }
-
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 12px; text-align: center; }
-        
+        /* Выбор валюты (Фикс твоих скриншотов) */
         .cur-row { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
         .cur-opt { width: 70px; height: 70px; border-radius: 15px; border: 2px solid #333; background: #222; font-size: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
         .cur-opt.selected { border-color: var(--accent); background: #333; transform: scale(1.1); box-shadow: 0 0 15px rgba(251, 197, 49, 0.3); }
         .cur-num { font-size: 11px; color: var(--danger); margin-top: 4px; font-weight: bold; }
+
+        /* Дисклеймер долгов */
+        .disclaimer { font-size: 10px; color: #aaa; background: rgba(232, 65, 24, 0.1); padding: 10px; border-radius: 10px; margin-bottom: 15px; line-height: 1.3; border: 1px solid rgba(232, 65, 24, 0.2); text-align: left; }
+
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; }
+        .history-list { text-align: left; font-size: 10px; color: #888; max-height: 150px; overflow-y: auto; }
         
-        .history-list { text-align: left; font-size: 11px; color: #888; max-height: 200px; overflow-y: auto; }
+        .tab-menu { display: flex; gap: 5px; margin-bottom: 15px; background: #000; padding: 5px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 10px; background: transparent; border: none; color: #555; border-radius: 8px; }
+        .tab-btn.active { background: var(--success); color: white; }
     </style>
 </head>
 <body>
@@ -53,9 +59,10 @@
     <div class="main-clicker"><div class="click-zone" id="banana" style="font-size:100px">🍌</div></div>
 
     <div class="menu">
+        <button class="btn btn-donate" onclick="openDonate()">КУПИТЬ КРИПТО (⭐️ STARS)</button>
         <button class="btn btn-bank" onclick="openBank()">БАНК</button>
         <button class="btn btn-debt" onclick="openDebt()">ДОЛГИ</button>
-        <button class="btn" style="border-bottom:3px solid var(--accent)" onclick="openShop()">МАГАЗИН</button>
+        <button class="btn" onclick="openShop()">МАГАЗИН</button>
         <button class="btn" onclick="saveGame()">СОХРАНИТЬ</button>
     </div>
 
@@ -81,105 +88,115 @@
             document.getElementById('crypto-stat').innerText = data.crypto;
         }
 
-        document.getElementById('banana').onclick = () => { data.bananas += data.clickPower; updateDisplay(); tg.HapticFeedback.impactOccurred('medium'); };
+        document.getElementById('banana').onclick = () => {
+            data.bananas += data.clickPower;
+            updateDisplay();
+            tg.HapticFeedback.impactOccurred('medium');
+        };
 
+        // ОКНО ДОНАТА
+        function openDonate() {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-content').innerHTML = `
+                <h3 style="color:var(--stars)">Пополнение Stars</h3>
+                <div class="donate-item" style="background:#222; padding:15px; border-radius:15px; margin-bottom:10px" onclick="sendToAdmin(100, 1)">
+                    <b style="font-size:18px">+100 ₿</b><br><span style="color:var(--stars)">Цена: 1 ⭐️</span>
+                </div>
+                <div class="donate-item" style="background:#222; padding:15px; border-radius:15px" onclick="sendToAdmin(1000, 10)">
+                    <b style="font-size:18px">+1000 ₿</b><br><span style="color:var(--stars)">Цена: 10 ⭐️</span>
+                </div>
+                <p style="font-size:10px; color:#666; margin-top:15px">После оплаты через чат админ @Bulba_73 начислит валюту вручную.</p>
+            `;
+        }
+
+        function sendToAdmin(amt, star) {
+            const text = `Я хочу купить ${amt} крипты за ${star} звезд!`;
+            tg.openTelegramLink(`https://t.me/Bulba_73?text=${encodeURIComponent(text)}`);
+        }
+
+        // ОКНО ДОЛГОВ
         function openDebt() {
             document.getElementById('modal').style.display = 'flex';
             const mc = document.getElementById('modal-content');
-            mc.innerHTML = `<h3>Кредитный Отдел</h3>
-                <div class="disclaimer">
-                    <b>ВНИМАНИЕ:</b> Оформляя заём, вы обязуетесь вернуть средства в течение 24 часов. В случае неуплаты система произведёт принудительное списание с вашего баланса с учётом штрафных санкций.
-                </div>
+            mc.innerHTML = `<h3>Кредиты</h3>
+                <div class="disclaimer"><b>ВНИМАНИЕ:</b> Оформляя заём, вы обязуетесь вернуть его в течение 24 часов. Система может списать средства автоматически при неуплате.</div>
                 <div class="cur-row">
                     <div class="cur-opt" id="l-b" onclick="setCur('bananas','l-b')">🍌<div class="cur-num">${data.loanB}</div></div>
                     <div class="cur-opt" id="l-d" onclick="setCur('diamonds','l-d')">💎<div class="cur-num">${data.loanD}</div></div>
                     <div class="cur-opt" id="l-c" onclick="setCur('crypto','l-c')">₿<div class="cur-num">${data.loanC}</div></div>
                 </div>
-                <input id="loan-val" type="number" placeholder="Сумма займа">
-                <button class="btn" style="background:var(--danger); margin-bottom:10px; width:100%" onclick="processLoan()">ВЗЯТЬ В ДОЛГ</button>
-                <button class="btn" style="background:var(--success); width:100%" onclick="repayAll()">ВЕРНУТЬ ВСЁ</button>`;
+                <input id="l-val" type="number" placeholder="Сумма займа">
+                <button class="btn" style="background:var(--danger); width:100%; margin-bottom:10px" onclick="takeLoan()">ВЗЯТЬ ДОЛГ</button>
+                <button class="btn" style="background:var(--success); width:100%" onclick="repayDebt()">ВЕРНУТЬ ВСЁ</button>
+            `;
             setCur('bananas', 'l-b');
         }
 
-        function openBank(tab = 'transfer') {
+        // ОКНО БАНКА
+        function openBank(tab = 'send') {
             document.getElementById('modal').style.display = 'flex';
             const mc = document.getElementById('modal-content');
-            let tabsHtml = `<div class="tab-menu">
-                <button class="tab-btn ${tab==='transfer'?'active':''}" onclick="openBank('transfer')">ПЕРЕВОД</button>
-                <button class="tab-btn ${tab==='history'?'active':''}" onclick="openBank('history')">ИСТОРИЯ</button>
+            let tabs = `<div class="tab-menu">
+                <button class="tab-btn ${tab==='send'?'active':''}" onclick="openBank('send')">ПЕРЕВОД</button>
+                <button class="tab-btn ${tab==='hist'?'active':''}" onclick="openBank('hist')">ИСТОРИЯ</button>
             </div>`;
-
-            if (tab === 'transfer') {
-                mc.innerHTML = tabsHtml + `<h3>Перевод средств</h3>
-                    <input id="target" placeholder="@username">
-                    <input id="amount" type="number" placeholder="Сумма">
-                    <div class="cur-row">
-                        <div class="cur-opt" id="s-b" onclick="setCur('bananas','s-b')">🍌</div>
-                        <div class="cur-opt" id="s-d" onclick="setCur('diamonds','s-d')">💎</div>
-                        <div class="cur-opt" id="s-c" onclick="setCur('crypto','s-c')">₿</div>
-                    </div>
-                    <button class="btn" style="background:var(--success); width:100%" onclick="processTransfer()">ПОДТВЕРДИТЬ</button>`;
+            
+            if(tab === 'send') {
+                mc.innerHTML = tabs + `<h3>Перевод</h3>
+                <input id="b-user" placeholder="@username">
+                <input id="b-amt" type="number" placeholder="Сумма">
+                <div class="cur-row">
+                    <div class="cur-opt" id="s-b" onclick="setCur('bananas','s-b')">🍌</div>
+                    <div class="cur-opt" id="s-d" onclick="setCur('diamonds','s-d')">💎</div>
+                    <div class="cur-opt" id="s-c" onclick="setCur('crypto','s-c')">₿</div>
+                </div>
+                <button class="btn" style="background:var(--success); width:100%" onclick="doTransfer()">ОТПРАВИТЬ</button>`;
                 setCur('bananas', 's-b');
             } else {
-                mc.innerHTML = tabsHtml + `<h3>История</h3><div class="history-list">${data.history.length ? data.history.map(h=>`<div>• ${h}</div>`).reverse().join('') : 'Пусто'}</div>`;
+                mc.innerHTML = tabs + `<h3>История</h3><div class="history-list">${data.history.length ? data.history.map(h=>`<div>• ${h}</div>`).reverse().join('') : 'История пуста'}</div>`;
             }
         }
 
+        // МАГАЗИН
         function openShop() {
             document.getElementById('modal').style.display = 'flex';
             document.getElementById('modal-content').innerHTML = `<h3>Магазин</h3>
-                <button class="btn" style="margin-bottom:8px; width:100%" onclick="buyUpg()">+1 КЛИК (${data.upgCost} 🍌)</button>
-                <button class="btn" style="background:var(--crypto); margin-bottom:8px; width:100%" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
-                <button class="btn" style="background:var(--diamond); width:100%" onclick="exchange()">ОБМЕН (500 🍌 -> 50 💎)</button>`;
+                <button class="btn" style="width:100%; margin-bottom:10px" onclick="buyUpg()">+1 К КЛИКУ (${data.upgCost} 🍌)</button>
+                <button class="btn" style="background:var(--crypto); width:100%" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
+            `;
         }
 
-        function buyDouble() {
-            if (data.crypto >= data.doubleCost) {
-                data.crypto -= data.doubleCost;
-                data.clickPower *= 2;
-                data.doubleCost = Math.floor(data.doubleCost * 1.2); // Теперь цена растет медленно!
-                updateDisplay(); openShop();
-            } else { alert("Недостаточно ₿!"); }
-        }
-
-        function setCur(cur, id) {
-            selectedCurrency = cur;
-            document.querySelectorAll('.cur-opt').forEach(o => o.classList.remove('selected'));
-            document.getElementById(id).classList.add('selected');
-        }
-
-        function processLoan() {
-            let val = parseInt(document.getElementById('loan-val').value);
-            if (val > 0) {
-                if (selectedCurrency === 'bananas') data.loanB += val;
-                else if (selectedCurrency === 'diamonds') data.loanD += val;
-                else data.loanC += val;
-                data[selectedCurrency] += val;
-                logHistory(`Заём: ${val} ${selectedCurrency}`);
-                updateDisplay(); closeModal();
+        // ЛОГИКА
+        function setCur(cur, id) { selectedCurrency = cur; document.querySelectorAll('.cur-opt').forEach(o => o.classList.remove('selected')); document.getElementById(id).classList.add('selected'); }
+        
+        function takeLoan() {
+            let v = parseInt(document.getElementById('l-val').value);
+            if(v > 0) {
+                if(selectedCurrency==='bananas') data.loanB+=v; else if(selectedCurrency==='diamonds') data.loanD+=v; else data.loanC+=v;
+                data[selectedCurrency]+=v; logHistory(`Взял ${v} ${selectedCurrency} в долг`); updateDisplay(); closeModal();
             }
         }
 
-        function processTransfer() {
-            let user = document.getElementById('target').value;
-            let val = parseInt(document.getElementById('amount').value);
-            if (user && val > 0 && data[selectedCurrency] >= val) {
-                data[selectedCurrency] -= val;
-                logHistory(`Перевод ${val} ${selectedCurrency} -> ${user}`);
-                updateDisplay(); closeModal(); alert("Отправлено!");
-            } else { alert("Ошибка!"); }
-        }
-
-        function repayAll() {
-            if (data.bananas >= data.loanB && data.diamonds >= data.loanD && data.crypto >= data.loanC) {
-                data.bananas -= data.loanB; data.diamonds -= data.loanD; data.crypto -= data.loanC;
-                data.loanB = 0; data.loanD = 0; data.loanC = 0;
-                logHistory("Долги погашены"); updateDisplay(); closeModal();
+        function repayDebt() {
+            if(data.bananas >= data.loanB && data.diamonds >= data.loanD && data.crypto >= data.loanC) {
+                data.bananas-=data.loanB; data.diamonds-=data.loanD; data.crypto-=data.loanC;
+                data.loanB=0; data.loanD=0; data.loanC=0; logHistory("Погасил все долги"); updateDisplay(); closeModal();
             } else { alert("Недостаточно средств!"); }
         }
 
+        function doTransfer() {
+            let u = document.getElementById('b-user').value;
+            let a = parseInt(document.getElementById('b-amt').value);
+            if(u && a > 0 && data[selectedCurrency] >= a) {
+                data[selectedCurrency] -= a; logHistory(`Перевод ${a}${selectedCurrency} -> ${u}`); updateDisplay(); closeModal(); alert("Успешно!");
+            } else { alert("Ошибка!"); }
+        }
+
+        function buyUpg() { if(data.bananas >= data.upgCost){ data.bananas -= data.upgCost; data.clickPower++; data.upgCost *= 2; updateDisplay(); openShop(); } }
+        function buyDouble() { if(data.crypto >= data.doubleCost){ data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost = Math.floor(data.doubleCost * 1.15); updateDisplay(); openShop(); } }
+        
         function logHistory(m) { data.history.push(`${new Date().toLocaleTimeString()} | ${m}`); if(data.history.length>15) data.history.shift(); }
-        function saveGame() { localStorage.setItem('bananaSave', JSON.stringify(data)); alert("Сохранено!"); }
+        function saveGame() { localStorage.setItem('bananaSave', JSON.stringify(data)); alert("Игра сохранена!"); }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
         window.onload = loadGame;
     </script>
