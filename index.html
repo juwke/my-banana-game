@@ -3,111 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Bulba Edition</title>
+    <title>Banana Clicker - Final Fix</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; }
-        body { 
-            background-color: var(--main-bg); color: white; font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden;
-        }
+        body { background: var(--main-bg); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden; }
 
-        .header { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; 
-            background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #333; width: 85%;
-        }
+        .header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #333; width: 85%; }
         .stat { text-align: center; }
         .stat-val { font-size: 16px; font-weight: bold; display: block; }
-        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; margin-top: 4px; }
+        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; }
 
         .main-clicker { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .click-zone {
-            width: 220px; height: 220px; border: 6px solid var(--accent); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; transition: transform 0.05s;
-            box-shadow: 0 0 40px rgba(251, 197, 49, 0.15);
-        }
-        .click-zone:active { transform: scale(0.94); }
+        .click-zone { width: 220px; height: 220px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; }
+        .click-zone:active { transform: scale(0.95); }
 
-        .menu { 
-            width: 100%; background: var(--card-bg); padding: 20px; border-radius: 35px 35px 0 0;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #333;
-        }
-        .btn { background: #222; border: none; color: white; padding: 14px; border-radius: 15px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .btn:active { background: #333; }
-        .btn-bank { grid-column: span 2; border-bottom: 3px solid var(--success); font-size: 13px; }
+        .menu { width: 100%; background: var(--card-bg); padding: 20px; border-radius: 35px 35px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #333; }
+        .btn { background: #222; border: none; color: white; padding: 14px; border-radius: 15px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .btn-bank { border-bottom: 3px solid var(--success); }
         .btn-debt { border-bottom: 3px solid var(--danger); background: #2a1010; }
-        .btn-save { grid-column: span 2; background: var(--success); margin-top: 5px; }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 30px; width: 85%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; text-align: center; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 30px; width: 85%; border: 1px solid #444; text-align: center; }
+        
+        .disclaimer { font-size: 11px; color: #aaa; background: rgba(232, 65, 24, 0.1); padding: 10px; border-radius: 10px; margin-bottom: 15px; line-height: 1.4; border: 1px solid rgba(232, 65, 24, 0.2); }
         
         .tab-menu { display: flex; gap: 5px; margin-bottom: 20px; background: #000; padding: 5px; border-radius: 15px; }
-        .tab-btn { flex: 1; padding: 10px; font-size: 10px; background: transparent; border: none; color: #666; border-radius: 10px; font-weight: bold; }
-        .tab-btn.active { background: var(--success); color: white; }
+        .tab-btn { flex: 1; padding: 10px; font-size: 10px; background: transparent; border: none; color: #666; border-radius: 10px; }
+        .tab-btn.active { background: var(--success); color: white; font-weight: bold; }
 
         input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 12px; text-align: center; }
         
-        /* Стили для кнопок выбора валюты */
         .cur-row { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
-        .cur-opt { 
-            width: 60px; height: 60px; border-radius: 15px; border: 2px solid #333; 
-            background: #222; font-size: 24px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; transition: 0.2s; 
-        }
-        .cur-opt.selected { border-color: var(--accent); background: #333; transform: scale(1.05); }
-        .cur-num { font-size: 10px; color: var(--danger); margin-top: 2px; font-weight: bold; }
-
-        .history-list { text-align: left; font-size: 11px; color: #888; }
+        .cur-opt { width: 70px; height: 70px; border-radius: 15px; border: 2px solid #333; background: #222; font-size: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
+        .cur-opt.selected { border-color: var(--accent); background: #333; transform: scale(1.1); box-shadow: 0 0 15px rgba(251, 197, 49, 0.3); }
+        .cur-num { font-size: 11px; color: var(--danger); margin-top: 4px; font-weight: bold; }
+        
+        .history-list { text-align: left; font-size: 11px; color: #888; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-label">Бананы 🍌</span></div>
-        <div class="stat"><span class="stat-val" id="diamonds" style="color:var(--diamond)">0</span><span class="stat-label">Алмазы 💎</span></div>
-        <div class="stat"><span class="stat-val" id="crypto-stat" style="color:var(--crypto)">0</span><span class="stat-label">Крипто ₿</span></div>
+        <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-label">🍌</span></div>
+        <div class="stat"><span class="stat-val" id="diamonds" style="color:var(--diamond)">0</span><span class="stat-label">💎</span></div>
+        <div class="stat"><span class="stat-val" id="crypto-stat" style="color:var(--crypto)">0</span><span class="stat-label">₿</span></div>
     </div>
 
-    <div class="main-clicker">
-        <div class="click-zone" id="banana">
-            <div style="font-size:100px; user-select: none;">🍌</div>
-        </div>
-    </div>
+    <div class="main-clicker"><div class="click-zone" id="banana" style="font-size:100px">🍌</div></div>
 
     <div class="menu">
-        <button class="btn btn-bank" onclick="openBankTab('transfer')">БАНК (ПЕРЕВОДЫ)</button>
-        <button class="btn btn-debt" onclick="openBankTab('loans')">ДОЛГИ 💸</button>
-        <button class="btn" style="border-bottom: 3px solid var(--accent)" onclick="openShop()">МАГАЗИН</button>
-        <button class="btn" onclick="alert('Скоро!')">ОПЦИИ</button>
-        <button class="btn" onclick="alert('Тут пусто...')">???</button>
-        <button class="btn btn-save" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
+        <button class="btn btn-bank" onclick="openBank()">БАНК</button>
+        <button class="btn btn-debt" onclick="openDebt()">ДОЛГИ</button>
+        <button class="btn" style="border-bottom:3px solid var(--accent)" onclick="openShop()">МАГАЗИН</button>
+        <button class="btn" onclick="saveGame()">СОХРАНИТЬ</button>
     </div>
 
     <div id="modal">
-        <div class="card">
-            <div id="bank-ui" style="display:none">
-                <div class="tab-menu">
-                    <button class="tab-btn" id="t-loan" onclick="openBankTab('loans')">ВЗЯТЬ/ВЕРНУТЬ</button>
-                    <button class="tab-btn" id="t-send" onclick="openBankTab('transfer')">ПЕРЕВОД</button>
-                    <button class="tab-btn" id="t-hist" onclick="openBankTab('history')">ИСТОРИЯ</button>
-                </div>
-            </div>
-            <div id="modal-content"></div>
-        </div>
-        <p onclick="closeModal()" style="color:#777; margin-top:20px; cursor:pointer; font-weight: bold;">ЗАКРЫТЬ</p>
+        <div class="card" id="modal-content"></div>
+        <p onclick="closeModal()" style="color:#777; margin-top:20px; cursor:pointer; font-weight:bold">ЗАКРЫТЬ</p>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let data = {
-            bananas: 0, diamonds: 0, crypto: 0,
-            clickPower: 1, upgCost: 100, doubleCost: 10,
-            loanB: 0, loanD: 0, loanC: 0, loanTime: 0,
-            history: []
-        };
+        let data = { bananas: 0, diamonds: 0, crypto: 0, clickPower: 1, upgCost: 100, doubleCost: 10, loanB: 0, loanD: 0, loanC: 0, history: [] };
         let selectedCurrency = 'bananas';
-
-        window.onload = () => { loadGame(); setInterval(autoCheck, 10000); };
 
         function loadGame() {
             const saved = localStorage.getItem('bananaSave');
@@ -115,58 +75,71 @@
             updateDisplay();
         }
 
-        function saveGame() {
-            localStorage.setItem('bananaSave', JSON.stringify(data));
-            tg.HapticFeedback.notificationOccurred('success');
-            alert("Игра сохранена!");
-        }
-
         function updateDisplay() {
-            document.getElementById('score').innerText = Math.floor(data.bananas || 0);
-            document.getElementById('diamonds').innerText = data.diamonds || 0;
-            document.getElementById('crypto-stat').innerText = data.crypto || 0;
+            document.getElementById('score').innerText = Math.floor(data.bananas);
+            document.getElementById('diamonds').innerText = data.diamonds;
+            document.getElementById('crypto-stat').innerText = data.crypto;
         }
 
-        document.getElementById('banana').onclick = () => {
-            data.bananas += data.clickPower;
-            updateDisplay();
-            tg.HapticFeedback.impactOccurred('medium');
-        };
+        document.getElementById('banana').onclick = () => { data.bananas += data.clickPower; updateDisplay(); tg.HapticFeedback.impactOccurred('medium'); };
 
-        function openBankTab(tab) {
+        function openDebt() {
             document.getElementById('modal').style.display = 'flex';
-            document.getElementById('bank-ui').style.display = 'flex';
             const mc = document.getElementById('modal-content');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            mc.innerHTML = `<h3>Кредитный Отдел</h3>
+                <div class="disclaimer">
+                    <b>ВНИМАНИЕ:</b> Оформляя заём, вы обязуетесь вернуть средства в течение 24 часов. В случае неуплаты система произведёт принудительное списание с вашего баланса с учётом штрафных санкций.
+                </div>
+                <div class="cur-row">
+                    <div class="cur-opt" id="l-b" onclick="setCur('bananas','l-b')">🍌<div class="cur-num">${data.loanB}</div></div>
+                    <div class="cur-opt" id="l-d" onclick="setCur('diamonds','l-d')">💎<div class="cur-num">${data.loanD}</div></div>
+                    <div class="cur-opt" id="l-c" onclick="setCur('crypto','l-c')">₿<div class="cur-num">${data.loanC}</div></div>
+                </div>
+                <input id="loan-val" type="number" placeholder="Сумма займа">
+                <button class="btn" style="background:var(--danger); margin-bottom:10px; width:100%" onclick="processLoan()">ВЗЯТЬ В ДОЛГ</button>
+                <button class="btn" style="background:var(--success); width:100%" onclick="repayAll()">ВЕРНУТЬ ВСЁ</button>`;
+            setCur('bananas', 'l-b');
+        }
 
-            if (tab === 'loans') {
-                document.getElementById('t-loan').classList.add('active');
-                mc.innerHTML = `<h3>Ваши долги</h3>
-                    <div class="cur-row">
-                        <div class="cur-opt" id="l-b" onclick="setCur('bananas','l-b')">🍌<div class="cur-num">${data.loanB}</div></div>
-                        <div class="cur-opt" id="l-d" onclick="setCur('diamonds','l-d')">💎<div class="cur-num">${data.loanD}</div></div>
-                        <div class="cur-opt" id="l-c" onclick="setCur('crypto','l-c')">₿<div class="cur-num">${data.loanC}</div></div>
-                    </div>
-                    <input id="loan-val" type="number" placeholder="Сумма для займа">
-                    <button class="btn" style="width:100%; background:var(--danger); margin-bottom:10px" onclick="processLoan()">ВЗЯТЬ В ДОЛГ</button>
-                    <button class="btn" style="width:100%; background:var(--success)" onclick="repayAll()">ВЕРНУТЬ ВСЕ ДОЛГИ</button>`;
-                setCur('bananas', 'l-b');
-            } else if (tab === 'transfer') {
-                document.getElementById('t-send').classList.add('active');
-                mc.innerHTML = `<h3>Отправить ресурсы</h3>
+        function openBank(tab = 'transfer') {
+            document.getElementById('modal').style.display = 'flex';
+            const mc = document.getElementById('modal-content');
+            let tabsHtml = `<div class="tab-menu">
+                <button class="tab-btn ${tab==='transfer'?'active':''}" onclick="openBank('transfer')">ПЕРЕВОД</button>
+                <button class="tab-btn ${tab==='history'?'active':''}" onclick="openBank('history')">ИСТОРИЯ</button>
+            </div>`;
+
+            if (tab === 'transfer') {
+                mc.innerHTML = tabsHtml + `<h3>Перевод средств</h3>
                     <input id="target" placeholder="@username">
-                    <input id="amount" type="number" placeholder="Количество">
+                    <input id="amount" type="number" placeholder="Сумма">
                     <div class="cur-row">
                         <div class="cur-opt" id="s-b" onclick="setCur('bananas','s-b')">🍌</div>
                         <div class="cur-opt" id="s-d" onclick="setCur('diamonds','s-d')">💎</div>
                         <div class="cur-opt" id="s-c" onclick="setCur('crypto','s-c')">₿</div>
                     </div>
-                    <button class="btn" style="width:100%; background:var(--success)" onclick="processTransfer()">ПОДТВЕРДИТЬ ПЕРЕВОД</button>`;
+                    <button class="btn" style="background:var(--success); width:100%" onclick="processTransfer()">ПОДТВЕРДИТЬ</button>`;
                 setCur('bananas', 's-b');
-            } else if (tab === 'history') {
-                document.getElementById('t-hist').classList.add('active');
-                mc.innerHTML = `<h3>История транзакций</h3><div class="history-list">${data.history.length ? data.history.map(h=>`<div>• ${h}</div>`).reverse().join('') : 'История пуста'}</div>`;
+            } else {
+                mc.innerHTML = tabsHtml + `<h3>История</h3><div class="history-list">${data.history.length ? data.history.map(h=>`<div>• ${h}</div>`).reverse().join('') : 'Пусто'}</div>`;
             }
+        }
+
+        function openShop() {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-content').innerHTML = `<h3>Магазин</h3>
+                <button class="btn" style="margin-bottom:8px; width:100%" onclick="buyUpg()">+1 КЛИК (${data.upgCost} 🍌)</button>
+                <button class="btn" style="background:var(--crypto); margin-bottom:8px; width:100%" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
+                <button class="btn" style="background:var(--diamond); width:100%" onclick="exchange()">ОБМЕН (500 🍌 -> 50 💎)</button>`;
+        }
+
+        function buyDouble() {
+            if (data.crypto >= data.doubleCost) {
+                data.crypto -= data.doubleCost;
+                data.clickPower *= 2;
+                data.doubleCost = Math.floor(data.doubleCost * 1.2); // Теперь цена растет медленно!
+                updateDisplay(); openShop();
+            } else { alert("Недостаточно ₿!"); }
         }
 
         function setCur(cur, id) {
@@ -177,20 +150,14 @@
 
         function processLoan() {
             let val = parseInt(document.getElementById('loan-val').value);
-            let limits = { bananas: 1000000, diamonds: 100000, crypto: 100 };
-            if (val > 0 && val <= limits[selectedCurrency]) {
-                let currentDebt = (selectedCurrency === 'bananas' ? data.loanB : (selectedCurrency === 'diamonds' ? data.loanD : data.loanC));
-                if (currentDebt > 0) return alert("Сначала верните старый долг в этой валюте!");
-                
-                if (selectedCurrency === 'bananas') data.loanB = val;
-                else if (selectedCurrency === 'diamonds') data.loanD = val;
-                else data.loanC = val;
-                
+            if (val > 0) {
+                if (selectedCurrency === 'bananas') data.loanB += val;
+                else if (selectedCurrency === 'diamonds') data.loanD += val;
+                else data.loanC += val;
                 data[selectedCurrency] += val;
-                if (!data.loanTime) data.loanTime = Date.now();
-                logHistory(`Взят долг: ${val} ${selectedCurrency}`);
+                logHistory(`Заём: ${val} ${selectedCurrency}`);
                 updateDisplay(); closeModal();
-            } else { alert("Неверная сумма!"); }
+            }
         }
 
         function processTransfer() {
@@ -198,54 +165,23 @@
             let val = parseInt(document.getElementById('amount').value);
             if (user && val > 0 && data[selectedCurrency] >= val) {
                 data[selectedCurrency] -= val;
-                logHistory(`Передал ${val}${selectedCurrency} игроку ${user}`);
-                updateDisplay(); closeModal(); alert("Успешно отправлено!");
-            } else { alert("Ошибка! Проверьте баланс или данные."); }
-        }
-
-        function openShop() {
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('bank-ui').style.display = 'none';
-            document.getElementById('modal-content').innerHTML = `<h3>Магазин улучшения</h3>
-                <button class="btn" style="width:100%; margin-bottom:8px" onclick="buyUpg()">+1 КЛИК (${data.upgCost} 🍌)</button>
-                <button class="btn" style="width:100%; background:var(--crypto); margin-bottom:8px" onclick="buyDouble()">УДВОИТЬ ТАП (${data.doubleCost} ₿)</button>
-                <button class="btn" style="width:100%; background:var(--diamond); margin-bottom:8px" onclick="buyCrypto()">КУПИТЬ 1 ₿ (10000 💎)</button>
-                <button class="btn" style="width:100%; background:var(--accent); color:black" onclick="exchange()">ОБМЕН (500 🍌 -> 50 💎)</button>`;
-        }
-
-        function buyDouble() {
-            if (data.crypto >= data.doubleCost) {
-                data.crypto -= data.doubleCost;
-                data.clickPower *= 2;
-                data.doubleCost = Math.floor(data.doubleCost * 1.8);
-                updateDisplay(); openShop();
-            } else { alert("Недостаточно криптовалюты!"); }
+                logHistory(`Перевод ${val} ${selectedCurrency} -> ${user}`);
+                updateDisplay(); closeModal(); alert("Отправлено!");
+            } else { alert("Ошибка!"); }
         }
 
         function repayAll() {
             if (data.bananas >= data.loanB && data.diamonds >= data.loanD && data.crypto >= data.loanC) {
                 data.bananas -= data.loanB; data.diamonds -= data.loanD; data.crypto -= data.loanC;
-                data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
-                logHistory("Все долги погашены"); updateDisplay(); closeModal();
-            } else { alert("Недостаточно средств для закрытия всех долгов!"); }
-        }
-
-        function autoCheck() {
-            if (data.loanTime > 0 && (Date.now() - data.loanTime > 86400000)) {
-                data.bananas = Math.max(0, data.bananas - data.loanB);
-                data.diamonds = Math.max(0, data.diamonds - data.loanD);
-                data.crypto = Math.max(0, data.crypto - data.loanC);
-                data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
-                alert("Время вышло (24ч)! Система списала долги с вашего баланса.");
-                updateDisplay();
-            }
+                data.loanB = 0; data.loanD = 0; data.loanC = 0;
+                logHistory("Долги погашены"); updateDisplay(); closeModal();
+            } else { alert("Недостаточно средств!"); }
         }
 
         function logHistory(m) { data.history.push(`${new Date().toLocaleTimeString()} | ${m}`); if(data.history.length>15) data.history.shift(); }
-        function buyUpg() { if(data.bananas>=data.upgCost){ data.bananas-=data.upgCost; data.clickPower++; data.upgCost*=2; updateDisplay(); openShop(); } }
-        function buyCrypto() { if(data.diamonds>=10000){ data.diamonds-=10000; data.crypto++; updateDisplay(); openShop(); } }
-        function exchange() { if(data.bananas>=500){ data.bananas-=500; data.diamonds+=50; updateDisplay(); openShop(); } }
+        function saveGame() { localStorage.setItem('bananaSave', JSON.stringify(data)); alert("Сохранено!"); }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        window.onload = loadGame;
     </script>
 </body>
 </html>
