@@ -39,15 +39,16 @@
 
         .menu { 
             width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #333;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; border-top: 1px solid #333;
         }
         .btn { background: #222; border: none; color: white; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
         .btn-bank { border-bottom: 3px solid var(--success); }
         .btn-shop { border-bottom: 3px solid var(--accent); }
         .btn-loan { border-bottom: 3px solid var(--danger); }
+        .btn-save { grid-column: span 3; background: var(--success); margin-top: 5px; }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 25px; width: 85%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 25px; width: 85%; max-height: 80vh; overflow-y: auto; border: 1px solid #444; text-align: center; }
         input { width: 85%; padding: 10px; margin: 8px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; }
         .loan-group { margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 15px; }
     </style>
@@ -66,7 +67,7 @@
         <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-label">Бананы 🍌</span></div>
         <div class="stat"><span class="stat-val" id="diamonds" style="color:var(--diamond)">0</span><span class="stat-label">Алмазы 💎</span></div>
         <div class="stat"><span class="stat-val" id="crypto-stat" style="color:var(--crypto)">0</span><span class="stat-label">Крипто ₿</span></div>
-        <div class="stat"><span class="stat-val" id="loan-stat" style="color:var(--danger)">0</span><span class="stat-label">Активный Долг</span></div>
+        <div class="stat"><span class="stat-val" id="loan-stat" style="color:var(--danger)">0</span><span class="stat-label">Долг 💸</span></div>
     </div>
 
     <div class="main-clicker"><div class="click-zone" id="banana"><div class="banana-emoji">🍌</div></div></div>
@@ -77,7 +78,8 @@
         <button class="btn btn-loan" onclick="openModal('loan')">ЗАЙМЫ</button>
         <button class="btn" onclick="alert('Скоро!')">ДОНАТ</button>
         <button class="btn" onclick="alert('В разработке')">ОПЦИИ</button>
-        <button class="btn" style="background:var(--success); grid-column: span 2;" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
+        <button class="btn" style="background:var(--crypto)" onclick="alert('Вы нашли секрет! 🕵️‍♂️')">???</button>
+        <button class="btn btn-save" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
     </div>
 
     <div id="modal">
@@ -101,14 +103,18 @@
                 document.getElementById('disclaimer').style.display = 'flex';
             }, 2000); 
             loadGame();
-            setInterval(checkLoans, 10000); // Проверка каждые 10 сек
+            setInterval(checkLoans, 10000);
         };
 
         function closeDisclaimer() { document.getElementById('disclaimer').style.display = 'none'; }
 
         function loadGame() {
             const saved = localStorage.getItem('bananaSave');
-            if (saved) { data = JSON.parse(saved); updateDisplay(); }
+            if (saved) { 
+                let parsed = JSON.parse(saved);
+                data = {...data, ...parsed}; // Сливаем данные, чтобы не было NaN
+            }
+            updateDisplay();
         }
 
         function saveGame() {
@@ -118,10 +124,15 @@
         }
 
         function updateDisplay() {
-            document.getElementById('score').innerText = Math.floor(data.bananas);
-            document.getElementById('diamonds').innerText = data.diamonds;
-            document.getElementById('crypto-stat').innerText = data.crypto;
-            document.getElementById('loan-stat').innerText = (data.loanB + data.loanD + data.loanC);
+            document.getElementById('score').innerText = Math.floor(data.bananas || 0);
+            document.getElementById('diamonds').innerText = data.diamonds || 0;
+            document.getElementById('crypto-stat').innerText = data.crypto || 0;
+            
+            // Исправленный подсчет долга без NaN
+            let b = data.loanB || 0;
+            let d = data.loanD || 0;
+            let c = data.loanC || 0;
+            document.getElementById('loan-stat').innerText = (b + d + c);
         }
 
         document.getElementById('banana').onclick = () => {
@@ -131,23 +142,14 @@
             tg.HapticFeedback.impactOccurred('medium');
         };
 
-        // ЛОГИКА ПРИНУДИТЕЛЬНОГО СПИСАНИЯ
         function checkLoans() {
             if (data.loanTime > 0 && (Date.now() - data.loanTime > 86400000)) {
-                let msg = "ВНИМАНИЕ! С вашего баланса списаны средства: ";
-                if(data.loanB > 0) msg += `\n- ${data.loanB} 🍌`;
-                if(data.loanD > 0) msg += `\n- ${data.loanD} 💎`;
-                if(data.loanC > 0) msg += `\n- ${data.loanC} ₿`;
-                msg += "\nПричина: вы не вернули долг в течение 24 часов!";
-
-                data.bananas = Math.max(0, data.bananas - data.loanB);
-                data.diamonds = Math.max(0, data.diamonds - data.loanD);
-                data.crypto = Math.max(0, data.crypto - data.loanC);
-                
+                data.bananas = Math.max(0, data.bananas - (data.loanB || 0));
+                data.diamonds = Math.max(0, data.diamonds - (data.loanD || 0));
+                data.crypto = Math.max(0, data.crypto - (data.loanC || 0));
                 data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
-                
+                alert("Время вышло! Долги списаны принудительно.");
                 updateDisplay();
-                alert(msg);
                 saveGame();
             }
         }
@@ -170,69 +172,66 @@
                         <button class="btn" onclick="send('crypto')">₿</button>
                     </div>`;
             } else if (type === 'loan') {
-                mc.innerHTML = `<h3>Кредитный Отдел</h3>
-                    <p style="font-size:11px; color:var(--danger)">Верните долг за 24ч, иначе спишем принудительно!</p>
-                    
+                mc.innerHTML = `<h3>Займы</h3>
+                    <p style="font-size:11px; color:var(--danger)">Списание через 24ч!</p>
                     <div class="loan-group">
                         <input id="amt-b" type="number" placeholder="Бананы (макс 1М)">
                         <button class="btn" style="width:100%" onclick="takeAnyLoan('bananas', 1000000, 'amt-b')">ВЗЯТЬ 🍌</button>
                     </div>
-
                     <div class="loan-group">
                         <input id="amt-d" type="number" placeholder="Алмазы (макс 100к)">
                         <button class="btn" style="background:var(--diamond); width:100%" onclick="takeAnyLoan('diamonds', 100000, 'amt-d')">ВЗЯТЬ 💎</button>
                     </div>
-
                     <div class="loan-group">
                         <input id="amt-c" type="number" placeholder="Крипто (макс 100)">
                         <button class="btn" style="background:var(--crypto); width:100%" onclick="takeAnyLoan('crypto', 100, 'amt-c')">ВЗЯТЬ ₿</button>
                     </div>
-                    
-                    <button class="btn" style="width:100%; background:var(--success); margin-top:10px;" onclick="payAllLoans()">ВЕРНУТЬ ВСЕ ДОЛГИ</button>`;
+                    <button class="btn" style="width:100%; background:var(--success)" onclick="payAllLoans()">ВЕРНУТЬ ДОЛГИ</button>`;
             }
             document.getElementById('modal').style.display = 'flex';
         }
 
         function takeAnyLoan(type, limit, inputId) {
             let val = parseInt(document.getElementById(inputId).value);
-            if (val > 0 && val <= limit) {
-                if (type === 'bananas' && data.loanB === 0) { data.loanB = val; data.bananas += val; }
-                else if (type === 'diamonds' && data.loanD === 0) { data.loanD = val; data.diamonds += val; }
-                else if (type === 'crypto' && data.loanC === 0) { data.loanC = val; data.crypto += val; }
-                else { return alert("Сначала верните текущий долг этого типа!"); }
-
-                if (data.loanTime === 0) data.loanTime = Date.now();
+            if (!isNaN(val) && val > 0 && val <= limit) {
+                if (type === 'bananas' && !data.loanB) { data.loanB = val; data.bananas += val; }
+                else if (type === 'diamonds' && !data.loanD) { data.loanD = val; data.diamonds += val; }
+                else if (type === 'crypto' && !data.loanC) { data.loanC = val; data.crypto += val; }
+                else { return alert("Уже есть долг этого типа!"); }
+                
+                if (!data.loanTime) data.loanTime = Date.now();
                 updateDisplay(); closeModal();
-            } else { alert("Недопустимая сумма!"); }
+            } else { alert("Неверная сумма!"); }
         }
 
         function payAllLoans() {
-            if (data.bananas >= data.loanB && data.diamonds >= data.loanD && data.crypto >= data.loanC) {
-                data.bananas -= data.loanB;
-                data.diamonds -= data.loanD;
-                data.crypto -= data.loanC;
+            if (data.bananas >= (data.loanB || 0) && data.diamonds >= (data.loanD || 0) && data.crypto >= (data.loanC || 0)) {
+                data.bananas -= (data.loanB || 0);
+                data.diamonds -= (data.loanD || 0);
+                data.crypto -= (data.loanC || 0);
                 data.loanB = 0; data.loanD = 0; data.loanC = 0; data.loanTime = 0;
-                updateDisplay();
-                alert("Все долги успешно возвращены!");
-                closeModal();
-            } else {
-                alert("Недостаточно средств на балансе для возврата всех долгов!");
-            }
+                updateDisplay(); alert("Долги выплачены!"); closeModal();
+            } else { alert("Недостаточно средств!"); }
+        }
+
+        function send(type) {
+            let user = document.getElementById('target-user').value;
+            let amt = parseInt(document.getElementById('transfer-amt').value);
+            // ПРОВЕРКА: Если всё введено верно
+            if (user && !isNaN(amt) && amt > 0 && amt <= 100000) {
+                if (data[type] >= amt) {
+                    data[type] -= amt;
+                    alert("Перевод " + amt + " " + type + " для " + user + " выполнен!");
+                    updateDisplay();
+                    closeModal();
+                } else { alert("Недостаточно средств на балансе!"); }
+            } else { alert("Ошибка! Проверьте сумму или ник."); }
         }
 
         function exchange() { if (data.bananas >= 500) { data.bananas -= 500; data.diamonds += 50; updateDisplay(); } }
         function buyUpg() { if (data.bananas >= data.upgCost) { data.bananas -= data.upgCost; data.clickPower++; data.upgCost *= 2; updateDisplay(); } }
         function buyDouble() { if (data.crypto >= data.doubleCost) { data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost++; updateDisplay(); } }
         function buyCrypto() { if (data.diamonds >= 10000) { data.diamonds -= 10000; data.crypto++; updateDisplay(); } }
-
-        function send(type) {
-            let user = document.getElementById('target-user').value;
-            let amt = parseInt(document.getElementById('transfer-amt').value);
-            if (user && amt > 0 && amt <= 100000 && data[type] >= amt) {
-                data[type] -= amt; alert("Отправлено!"); updateDisplay(); closeModal();
-            } else { alert("Ошибка перевода!"); }
-        }
-
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
     </script>
 </body>
