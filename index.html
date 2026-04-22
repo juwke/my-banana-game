@@ -3,110 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Pro v5</title>
+    <title>Banana World - Botik Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --diamond: #00a8ff; --crypto: #9c88ff; --danger: #e84118; --success: #4cd137; }
+        :root { --main-bg: #0b0b0b; --card-bg: #161616; --accent: #fbc531; --ether: #00d2ff; --danger: #e84118; --success: #4cd137; --stars: #ff9f43; }
         body { background: var(--main-bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
 
         /* ЗАГРУЗКА */
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loader { width: 40px; height: 40px; border: 3px solid #222; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loader { width: 45px; height: 45px; border: 4px solid #222; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ГЛАВНОЕ МЕНЮ (ПОЛНОЕ МЕНЮ) */
-        #main-menu { position: fixed; inset: 0; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; display: none; }
-        .m-btn { width: 70%; padding: 18px; border-radius: 15px; border: 1px solid #333; background: #111; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .m-btn:active { transform: scale(0.95); background: #222; }
-        .btn-play { background: var(--accent); color: black; border: none; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        /* ГЛАВНОЕ МЕНЮ */
+        #main-menu { position: fixed; inset: 0; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+        .game-logo { width: 160px; height: 160px; border-radius: 50%; border: 4px solid white; margin-bottom: 20px; object-fit: cover; }
+        
+        .m-btn { width: 75%; padding: 16px; border-radius: 15px; border: 1px solid #333; background: #111; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .m-btn:active { transform: scale(0.95); }
+        .btn-play { background: var(--accent); color: black; border: none; font-size: 18px; text-transform: uppercase; }
+        .btn-save-main { background: var(--success); color: black; border: none; }
 
-        /* ДИСКЛЕЙМЕР И ТАЙМЕР */
-        #disclaimer-screen { position: fixed; inset: 0; background: #000; z-index: 2500; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        #disc-timer { font-size: 24px; color: var(--danger); margin-top: 20px; font-weight: bold; }
-        #disc-btn { display: none; margin-top: 20px; width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--accent); color: black; font-weight: bold; font-size: 16px; }
+        /* ДИСКЛЕЙМЕР */
+        #disclaimer-screen { position: fixed; inset: 0; background: #000; z-index: 4500; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        #disc-timer { font-size: 32px; color: var(--danger); margin: 20px 0; font-weight: bold; }
+        #disc-btn { display: none; width: 80%; padding: 18px; border-radius: 15px; border: none; background: var(--accent); color: black; font-weight: bold; font-size: 16px; }
 
-        /* ОСНОВНОЙ ИНТЕРФЕЙС ИГРЫ */
-        .header { display: flex; justify-content: space-around; width: 90%; background: var(--card-bg); padding: 15px; border-radius: 0 0 20px 20px; border: 1px solid #222; z-index: 10; }
+        /* ИГРОВОЙ ЭКРАН */
+        #game-ui { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; }
+        .header { display: flex; justify-content: space-around; width: 90%; background: var(--card-bg); padding: 15px; border-radius: 0 0 20px 20px; border: 1px solid #222; }
         .stat { text-align: center; }
         .stat b { display: block; font-size: 18px; }
         .stat small { color: #666; font-size: 10px; text-transform: uppercase; }
 
-        .click-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .click-zone { width: 220px; height: 220px; border: 6px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; user-select: none; }
+        .click-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
+        .click-zone { width: 220px; height: 220px; border: 8px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.1s; cursor: pointer; user-select: none; font-size: 100px; z-index: 5; background: #111; }
         .click-zone:active { transform: scale(0.9); }
 
-        .menu-footer { width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr; gap: 10px; border-top: 1px solid #333; z-index: 10; padding-bottom: 25px; }
-        .f-btn { background: #222; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .float-text { position: absolute; color: var(--accent); font-weight: bold; font-size: 24px; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
-        /* МОДАЛКИ */
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 85%; border: 1px solid #444; text-align: center; max-height: 80vh; overflow-y: auto; }
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; }
-        .disclaimer-box { font-size: 11px; color: #888; text-align: left; background: rgba(232, 65, 24, 0.05); padding: 12px; border-radius: 10px; border: 1px solid #333; margin-bottom: 10px; }
+        .footer { width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #333; padding-bottom: 25px; }
+        .f-btn { background: #222; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 11px; }
+        .btn-donate { grid-column: span 2; background: var(--stars); color: black; border: none; }
+
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 6000; flex-direction: column; align-items: center; justify-content: center; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 80%; border: 1px solid #444; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen"><div class="loader"></div></div>
+    <div id="loading-screen"><div class="loader"></div><p>ЗАГРУЗКА ДАННЫХ...</p></div>
 
     <div id="main-menu">
+        <img src="1000030238.png" alt="Логотип" class="game-logo" onerror="this.style.display='none'">
         <button class="m-btn btn-play" onclick="startPlay()">ИГРАТЬ</button>
-        <button class="m-btn" onclick="openOptions()">Опции</button>
-        <button class="m-btn" onclick="openCredits()">КРЕДИТЫ (Создатели)</button>
+        <button class="m-btn btn-save-main" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
+        <button class="m-btn" onclick="openOptions()">ОПЦИИ</button>
+        <button class="m-btn" onclick="openCredits()">КРЕДИТЫ</button>
     </div>
 
     <div id="disclaimer-screen">
-        <h2 style="color:var(--accent); margin-bottom: 10px;">ВНИМАНИЕ</h2>
-        <div style="font-size:12px; color: #bbb; text-align:left; line-height: 1.6; border-left: 2px solid var(--accent); padding-left: 10px; margin-bottom: 10px;">
-            Игра находится на ранней стадии разработки. Возможны ошибки, баги и сбои в сохранении. Весь баланс является виртуальным. <br><br>
-            Администрация официально заявляет, что игра не содержит упоминаний и не поддерживает контент 18+ и ЛГБТ.
-        </div>
+        <h2 style="color:var(--accent)">ВАЖНО</h2>
+        <p style="font-size:13px; color:#bbb;">Автор не поддерживает 18+ и ЛГБТ.<br>Игра в разработке. Удачного тапа!</p>
         <div id="disc-timer">4</div>
-        <button id="disc-btn" onclick="enterGame()">ПРИНЯТЬ И ВОЙТИ</button>
+        <button id="disc-btn" onclick="enterGame()">ПОЕХАЛИ!</button>
     </div>
 
-    <div class="header">
-        <div class="stat"><b id="b-val">0</b><small>Бананы 🍌</small></div>
-        <div class="stat"><b id="e-val" style="color:var(--ether)">0</b><small>Эфир 💠</small></div>
-    </div>
-
-    <div class="click-area"><div class="click-zone" id="banana" style="font-size:100px;">🍌</div></div>
-
-    <div class="menu-footer">
-        <button class="f-btn" onclick="openShop()">МАГАЗИН И СОХРАНЕНИЕ 🛒</button>
-        <button class="f-btn" onclick="openFinances()">ФИНАНСЫ И ЗАЙМЫ 💳</button>
+    <div id="game-ui">
+        <div class="header">
+            <div class="stat"><b id="b-val">0</b><small>Бананы 🍌</small></div>
+            <div class="stat"><b id="e-val" style="color:var(--ether)">0</b><small>Эфир 💠</small></div>
+        </div>
+        <div class="click-area" id="click-area">
+            <div class="click-zone" id="banana">🍌</div>
+        </div>
+        <div class="footer">
+            <button class="f-btn" onclick="openShop()">МАГАЗИН 🛒</button>
+            <button class="f-btn" onclick="openFinances()">ФИНАНСЫ 💳</button>
+            <button class="f-btn btn-donate" onclick="openDonate()">ПОДДЕРЖАТЬ @Bulba_73 ⭐️</button>
+        </div>
     </div>
 
     <div id="modal">
         <div class="card" id="modal-content"></div>
-        <p onclick="closeModal()" style="color:#777; margin-top:20px; cursor:pointer; font-weight:bold">ЗАКРЫТЬ</p>
+        <p onclick="closeModal()" style="color:#777; margin-top:20px; cursor:pointer;">[ ЗАКРЫТЬ ]</p>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let defaultData = { bananas: 0, ether: 0, clickPower: 1, upgCost: 100, doubleCost: 5, loan: 0 };
+        let defaultData = { bananas: 0, ether: 0, clickPower: 1, upgCost: 100, loan: 0 };
         let data = JSON.parse(JSON.stringify(defaultData));
 
-        // Инициализация
         window.onload = () => {
             loadGame();
             setTimeout(() => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('main-menu').style.display = 'flex';
-            }, 1500); // 1.5 сек загрузки
+            }, 2000);
         };
 
-        // ЛОГИКА ВХОДА
         function startPlay() {
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('disclaimer-screen').style.display = 'flex';
-            
-            let timeLeft = 4;
+            let sec = 4;
             const timer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('disc-timer').innerText = timeLeft;
-                
-                if (timeLeft <= 0) {
+                sec--;
+                document.getElementById('disc-timer').innerText = sec;
+                if(sec <= 0) {
                     clearInterval(timer);
                     document.getElementById('disc-timer').style.display = 'none';
                     document.getElementById('disc-btn').style.display = 'block';
@@ -116,84 +119,91 @@
 
         function enterGame() {
             document.getElementById('disclaimer-screen').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'flex';
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('banana_v5_core');
+            const saved = localStorage.getItem('botik_final');
             if (saved) data = Object.assign(data, JSON.parse(saved));
-            updateDisplay();
+            updateUI();
         }
 
-        function updateDisplay() {
+        function updateUI() {
             document.getElementById('b-val').innerText = Math.floor(data.bananas).toLocaleString();
             document.getElementById('e-val').innerText = data.ether;
         }
 
-        document.getElementById('banana').onclick = () => {
+        document.getElementById('banana').onclick = (e) => {
             data.bananas += data.clickPower;
-            updateDisplay();
+            updateUI();
+            createFloatText(e);
             tg.HapticFeedback.impactOccurred('light');
         };
 
-        // МАГАЗИН И СОХРАНЕНИЕ (ОБЪЕДИНЕНО)
+        function createFloatText(e) {
+            const area = document.getElementById('click-area');
+            const txt = document.createElement('div');
+            txt.className = 'float-text';
+            txt.innerText = `+${data.clickPower}`;
+            txt.style.left = `${e.clientX - 20}px`;
+            txt.style.top = `${e.clientY - 40}px`;
+            area.appendChild(txt);
+            setTimeout(() => txt.remove(), 800);
+        }
+
         function openShop() {
             showModal(`
-                <h3>МАГАЗИН УЛУЧШЕНИЙ</h3>
-                <div class="shop-item" style="border: 1px solid #222; padding: 10px; border-radius: 12px; margin-bottom: 10px;">
-                    <span style="display: block; font-size: 13px;">Улучшить клик (+1)</span>
-                    <button class="btn" style="width:100%;" onclick="buyUpg()">Купить за ${data.upgCost} 🍌</button>
-                </div>
-                <div class="shop-item" style="border: 1px solid var(--ether); padding: 10px; border-radius: 12px; margin-bottom: 10px;">
-                    <span style="display: block; font-size: 13px; color:var(--ether);">Удвоить тап (X2)</span>
-                    <button class="btn" style="width:100%; background:var(--ether); color:black;" onclick="buyDouble()">Купить за ${data.doubleCost} ₿</button>
-                </div>
-                <hr border="0" height="1" bgcolor="#222">
-                <h3>СОХРАНЕНИЕ</h3>
-                <button class="btn" style="width:100%; background:var(--success); color:black;" onclick="saveGame()">СОХРАНИТЬ ПРОГРЕСС</button>
+                <h3>МАГАЗИН</h3>
+                <button class="m-btn" style="width:100%; margin-bottom:10px" onclick="buyUpg(1)">+1 КЛИК (${data.upgCost} 🍌)</button>
+                <button class="m-btn" style="width:100%; border-color:var(--ether)" onclick="buyDouble()">УДВОИТЬ ТАП (1 💠)</button>
             `);
         }
 
-        function buyUpg() { if(data.bananas >= data.upgCost){ data.bananas -= data.upgCost; data.clickPower++; data.upgCost *= 2; updateDisplay(); openShop(); } }
-        function buyDouble() { if(data.crypto >= data.doubleCost){ data.crypto -= data.doubleCost; data.clickPower *= 2; data.doubleCost = Math.floor(data.doubleCost * 1.15); updateDisplay(); openShop(); } }
+        function buyUpg(n) {
+            if(data.bananas >= data.upgCost) {
+                data.bananas -= data.upgCost;
+                data.clickPower += n;
+                data.upgCost = Math.floor(data.upgCost * 1.3);
+                updateUI(); openShop();
+            }
+        }
+
+        function buyDouble() {
+            if(data.ether >= 1) {
+                data.ether -= 1;
+                data.clickPower *= 2;
+                updateUI(); closeModal();
+                tg.showAlert("Успешно удвоено!");
+            }
+        }
 
         function openFinances() {
-            showModal(`
-                <h3>ФИНАНСЫ И ЗАЙМЫ</h3>
-                <div class="shop-item" style="border: 1px solid #222; padding: 10px; border-radius: 12px; margin-bottom: 10px;">
-                    <span style="display: block; font-size: 13px;">Взять займ (БЕЗ ПРОЦЕНТОВ)</span>
-                    <button class="btn" style="width:100%;" onclick="takeLoan(10000)">Взять 10,000 🍌</button>
-                </div>
-                <div class="shop-item" style="border: 1px solid var(--ether); padding: 10px; border-radius: 12px; margin-bottom: 10px;">
-                    <span style="display: block; font-size: 13px; color:var(--ether);">Купить 1 ₿ за 1М 🍌</span>
-                    <button class="btn" style="width:100%; background:var(--ether); color:black;" onclick="exchange()">ОБМЕН (1,000,000 🍌)</button>
-                </div>
-            `);
+            showModal(`<h3>БАНК</h3><p>Займ: ${data.loan} 🍌</p><button class="m-btn" onclick="takeLoan()">ВЗЯТЬ 10к</button>`);
         }
 
-        function takeLoan(v) { data.loan += v; data.bananas += v; updateDisplay(); closeModal(); }
-        function exchange() { if(data.bananas >= 1000000){ data.bananas -= 1000000; data.crypto += 1; updateDisplay(); openFinances(); } }
+        function takeLoan() { data.loan += 10000; data.bananas += 10000; updateUI(); closeModal(); }
+
+        function openDonate() {
+            showModal(`<h3>ДОНАТ ⭐️</h3><p>Связь: @Bulba_73</p><button class="m-btn" style="background:var(--stars); color:black" onclick="tg.openTelegramLink('https://t.me/Bulba_73')">ПЕРЕЙТИ</button>`);
+        }
 
         function openCredits() {
-            showModal(`
-                <h3>КРЕДИТЫ (Создатели)</h3>
-                <p><b>Главный разработчик:</b></p>
-                <p>Bulba_73 (https://t.me/Bulba_73)</p>
-                <p><b>Дизайн интерфейса:</b></p>
-                <p>Bulba_73</p>
-                <p><b>Версия:</b> 5.0 Stable (Core v5)</p>
-            `);
+            showModal(`<h3>КРЕДИТЫ</h3><p>Создал: @Bulba_73</p>`);
         }
 
         function openOptions() {
-            showModal(`
-                <h3>ОПЦИИ И СБРОС</h3>
-                <p style="font-size:12px; color:#aaa; margin-bottom:15px">Внимание: сброс игры удалит все улучшения и баланс!</p>
-                <button class="btn" style="width:100%; background:var(--danger);" onclick="resetGame()">СБРОСИТЬ ВЕСЬ ПРОГРЕСС</button>
-            `);
+            showModal(`<h3>ОПЦИИ</h3><button class="m-btn" style="background:var(--danger)" onclick="resetGame()">СБРОСИТЬ ВСЁ</button>`);
         }
 
-        function saveGame() { localStorage.setItem('banana_v5_core', JSON.stringify(data)); tg.showAlert("Данные успешно сохранены!"); closeModal(); }
-        function resetGame() { if(confirm("Ты уверен? Весь прогресс будет удален!")){ data = JSON.parse(JSON.stringify(defaultData)); localStorage.clear(); updateDisplay(); closeModal(); } }
+        function saveGame() {
+            localStorage.setItem('botik_final', JSON.stringify(data));
+            tg.showAlert("Прогресс сохранен!");
+        }
+
+        function resetGame() {
+            if(confirm("Удалить весь прогресс?")){ localStorage.clear(); location.reload(); }
+        }
+
         function showModal(h) { document.getElementById('modal').style.display = 'flex'; document.getElementById('modal-content').innerHTML = h; }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
     </script>
