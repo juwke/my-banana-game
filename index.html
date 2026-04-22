@@ -3,46 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Banana Clicker - Major Update</title>
+    <title>Banana Clicker - Global Update</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --main-bg: #050505; --card-bg: #111; --accent: #fbc531; --ether: #00d2ff; --danger: #eb4d4b; --success: #6ab04c; }
-        body { background: var(--main-bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        body { background: var(--main-bg); color: white; font-family: sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
 
-        /* ТЕХНИЧЕСКИЙ ПЕРЕРЫВ */
+        /* ЭКРАН ТЕХРАБОТ */
         #tech-break { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; }
-        #timer { font-size: 48px; font-weight: bold; color: var(--danger); font-family: monospace; margin: 20px 0; }
-        .tech-fact { font-size: 14px; color: #888; font-style: italic; max-width: 80%; }
-        #login-btn { display: none; margin-top: 20px; background: var(--success); padding: 15px 40px; border-radius: 15px; border: none; color: white; font-weight: bold; }
+        #timer { font-size: 54px; font-weight: bold; color: var(--danger); font-family: monospace; text-shadow: 0 0 15px rgba(235, 77, 75, 0.5); }
+        .tech-info { margin-top: 20px; color: #888; font-size: 13px; line-height: 1.6; }
+        #login-btn { display: none; margin-top: 30px; background: var(--success); padding: 18px 50px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 0 20px rgba(106, 176, 76, 0.4); }
 
         /* ИНТЕРФЕЙС */
-        .header { background: var(--card-bg); padding: 20px; border-radius: 0 0 25px 25px; width: 90%; border: 1px solid #222; display: flex; justify-content: space-around; }
+        .header { background: var(--card-bg); padding: 20px; border-radius: 0 0 25px 25px; width: 90%; border: 1px solid #222; display: flex; justify-content: space-around; margin-bottom: 20px; }
         .stat-box { text-align: center; }
-        .val { font-size: 20px; font-weight: bold; display: block; }
-        .lbl { font-size: 10px; color: #666; text-transform: uppercase; }
+        .val { font-size: 22px; font-weight: bold; display: block; }
+        .lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
 
         .click-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; }
-        .banana-main { font-size: 120px; cursor: pointer; transition: 0.1s; user-select: none; }
-        .banana-main:active { transform: scale(0.9); }
+        .banana-main { font-size: 130px; cursor: pointer; transition: 0.1s; user-select: none; filter: drop-shadow(0 0 10px rgba(251, 197, 49, 0.2)); }
+        .banana-main:active { transform: scale(0.85); }
 
         .footer-menu { width: 100%; background: var(--card-bg); padding: 15px; border-radius: 30px 30px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #333; }
         .btn { background: #1a1a1a; border: 1px solid #333; color: white; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 12px; }
-        .save-btn { grid-column: span 2; background: var(--success); color: black; border: none; }
+        .save-btn { grid-column: span 2; background: var(--success); color: black; border: none; font-size: 14px; }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        .modal-card { background: var(--card-bg); width: 85%; padding: 25px; border-radius: 25px; border: 1px solid #333; max-height: 80vh; overflow-y: auto; }
-        
-        .history-item { font-size: 11px; padding: 8px; border-bottom: 1px solid #222; text-align: left; color: #aaa; }
-        .limit-info { font-size: 10px; color: var(--danger); margin-top: 5px; }
+        .modal-card { background: var(--card-bg); width: 85%; padding: 25px; border-radius: 25px; border: 1px solid #333; text-align: center; }
+        .history-list { text-align: left; max-height: 200px; overflow-y: auto; font-size: 12px; color: #aaa; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <div id="tech-break">
-        <h2 style="color:var(--accent)">ТЕХНИЧЕСКИЙ ПЕРЕРЫВ</h2>
-        <p style="font-size: 12px;">Обновляем экономику: удаляем Биткоины и вводим <b>ЭФИР (💠)</b></p>
-        <div id="timer">30:00</div>
-        <p class="tech-fact" id="tech-fact-text">Знаете ли вы: Эфир нельзя получить обычным кликом.</p>
+        <h2 style="color:var(--accent); margin-bottom:10px">ОБНОВЛЕНИЕ СЕТИ</h2>
+        <div id="timer">00:00</div>
+        <div class="tech-info">
+            <p>Удаляем устаревшие валюты (BTC/💎)...</p>
+            <p>Внедряем <b>ЭФИР 💠</b> для элиты.</p>
+            <p id="current-fact" style="color:var(--ether)">Факт: Эфир можно обменять на 1,000,000 бананов.</p>
+        </div>
         <button id="login-btn" onclick="enterGame()">ПОПРОБОВАТЬ ВОЙТИ</button>
     </div>
 
@@ -71,64 +72,71 @@
 
     <div id="modal">
         <div class="modal-card" id="m-content"></div>
-        <p onclick="closeModal()" style="margin-top:20px; font-weight:bold; color:#555">ЗАКРЫТЬ</p>
+        <p onclick="closeModal()" style="margin-top:20px; font-weight:bold; color:#555; cursor:pointer">ЗАКРЫТЬ</p>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         let data = { 
             bananas: 0, ether: 0, clickPower: 1, 
-            upgCost: 100, loan: 0, 
-            history: [] 
+            upgCost: 100, loan: 0, history: [],
+            version: 3.0 // Версия для проверки обновления
         };
 
-        const LOAN_LIMIT = 50000;
+        // --- ЛОГИКА ОБЩЕГО ТАЙМЕРА ---
+        // Установи время завершения (например, через 30 минут после твоего деплоя)
+        // Чтобы сделать его общим, можно использовать фиксированную дату.
+        // Сейчас поставим: "текущее время + 30 минут" при первом запуске, 
+        // но зафиксируем в localStorage, чтобы оно не сбрасывалось.
+        
+        let targetTime = localStorage.getItem('tech_target_time');
+        if (!targetTime) {
+            targetTime = Date.now() + (30 * 60 * 1000); 
+            localStorage.setItem('tech_target_time', targetTime);
+        }
 
-        // ТАЙМЕР ТЕХРАБОТ
-        let timeLeft = 30 * 60;
-        const facts = [
-            "Эфир — это элитная валюта для топ-игроков.",
-            "Мы удалили Биткоины, так как они обесценились.",
-            "Новую валюту можно купить за Звезды Telegram у @Bulba_73.",
-            "Обмен 1,000,000 бананов даст вам 1 Эфир.",
-            "Техработы нужны для стабильности базы данных."
-        ];
+        function updateTechTimer() {
+            const now = Date.now();
+            const diff = targetTime - now;
 
-        function startTechTimer() {
-            const tNode = document.getElementById('timer');
-            const fNode = document.getElementById('tech-fact-text');
+            if (diff <= 0) {
+                document.getElementById('timer').innerText = "ОБНОВЛЕНО";
+                document.getElementById('timer').style.color = "var(--success)";
+                document.getElementById('login-btn').style.display = "block";
+                return;
+            }
+
+            const m = Math.floor(diff / 1000 / 60);
+            const s = Math.floor((diff / 1000) % 60);
+            document.getElementById('timer').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
             
-            const countdown = setInterval(() => {
-                let m = Math.floor(timeLeft / 60);
-                let s = timeLeft % 60;
-                tNode.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                
-                if (timeLeft % 10 === 0) {
-                    fNode.innerText = facts[Math.floor(Math.random() * facts.length)];
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    tNode.innerText = "ГОТОВО";
-                    document.getElementById('login-btn').style.display = "block";
-                }
-                timeLeft--;
-            }, 1000);
+            setTimeout(updateTechTimer, 1000);
         }
 
         function enterGame() {
             document.getElementById('tech-break').style.display = "none";
             loadGame();
+            // При входе проверяем, нужно ли обнулить старые валюты
+            cleanOldData();
         }
 
+        function cleanOldData() {
+            // Удаляем старые ключи, если они были
+            delete data.diamonds;
+            delete data.crypto;
+            delete data.bitcoin;
+            updateUI();
+        }
+
+        // --- ГЕЙМПЛЕЙ ---
         function loadGame() {
-            const saved = localStorage.getItem('banana_v3');
+            const saved = localStorage.getItem('banana_v3_core');
             if (saved) data = Object.assign(data, JSON.parse(saved));
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('b-val').innerText = Math.floor(data.bananas);
+            document.getElementById('b-val').innerText = Math.floor(data.bananas).toLocaleString();
             document.getElementById('e-val').innerText = data.ether;
         }
 
@@ -138,16 +146,25 @@
             tg.HapticFeedback.impactOccurred('light');
         };
 
-        // МАГАЗИН
         function openShop() {
             showModal(`
-                <h3>МАГАЗИН</h3>
-                <button class="btn" style="width:100%; margin-bottom:10px" onclick="buyUpg()">+1 К КЛИКУ (${data.upgCost} 🍌)</button>
-                <hr border="0" height="1" bgcolor="#222">
-                <p style="font-size:12px">КУПИТЬ ЭФИР 💠</p>
-                <button class="btn" style="width:100%; color:var(--ether)" onclick="exchangeEther()">1,000,000 🍌 -> 1 💠</button>
-                <button class="btn" style="width:100%; margin-top:10px; background:var(--accent); color:black" onclick="tg.openTelegramLink('https://t.me/Bulba_73')">КУПИТЬ ЗА ЗВЕЗДЫ ⭐️</button>
+                <h3>ЭЛИТНЫЙ МАГАЗИН</h3>
+                <button class="btn" style="width:100%; margin-bottom:15px" onclick="buyUpg()">УЛУЧШИТЬ КЛИК (${data.upgCost} 🍌)</button>
+                <div style="background:#000; padding:15px; border-radius:12px; border:1px solid var(--ether)">
+                    <p style="font-size:12px; margin:0">ОБМЕН НА ЭФИР</p>
+                    <h2 style="color:var(--ether); margin:10px 0">1,000,000 🍌</h2>
+                    <button class="btn" style="width:100%; background:var(--ether); color:black" onclick="exchangeEther()">ПОЛУЧИТЬ 1 💠</button>
+                </div>
             `);
+        }
+
+        function exchangeEther() {
+            if(data.bananas >= 1000000) {
+                data.bananas -= 1000000;
+                data.ether += 1;
+                logEvent("Обмен: 1М бананов на 1 Эфир");
+                updateUI(); closeModal();
+            } else { tg.showAlert("Нужно 1,000,000 бананов!"); }
         }
 
         function buyUpg() {
@@ -155,81 +172,66 @@
                 data.bananas -= data.upgCost;
                 data.clickPower++;
                 data.upgCost *= 2;
-                logEvent(`Куплено улучшение за ${data.upgCost/2} 🍌`);
-                updateUI(); openShop();
+                logEvent("Улучшение клика: +" + data.clickPower);
+                updateUI(); closeModal();
             }
         }
 
-        function exchangeEther() {
-            if(data.bananas >= 1000000) {
-                data.bananas -= 1000000;
-                data.ether += 1;
-                logEvent(`Обменял 1М бананов на 1 Эфир 💠`);
-                updateUI(); openShop();
-            }
-        }
-
-        // ФИНАНСЫ И ЗАЙМЫ
         function openFinances() {
+            const limit = 100000;
             showModal(`
-                <h3>ФИНАНСЫ</h3>
-                <p>Ваш долг: <b style="color:var(--danger)">${data.loan}</b> / ${LOAN_LIMIT}</p>
-                <input id="loan-amt" type="number" placeholder="Сумма займа">
-                <div class="limit-info">Максимальный лимит: ${LOAN_LIMIT} 🍌</div>
-                <button class="btn" style="width:100%; margin-top:10px" onclick="takeLoan()">ВЗЯТЬ ЗАЙМ</button>
-                <button class="btn" style="width:100%; margin-top:10px; border-color:var(--success)" onclick="repayLoan()">ВЕРНУТЬ ДОЛГ</button>
+                <h3>ЗАЙМЫ</h3>
+                <p style="font-size:12px">Долг: ${data.loan} / ${limit}</p>
+                <input id="l-amt" type="number" placeholder="Сумма" style="width:80%; padding:10px; margin:10px 0; background:#000; border:1px solid #333; color:#fff">
+                <button class="btn" style="width:100%; background:var(--danger)" onclick="takeLoan(${limit})">ВЗЯТЬ БАНАНЫ</button>
+                <button class="btn" style="width:100%; margin-top:10px; background:var(--success); color:black" onclick="repayLoan()">ВЕРНУТЬ ДОЛГ</button>
             `);
         }
 
-        function takeLoan() {
-            let val = parseInt(document.getElementById('loan-amt').value);
-            if(val > 0 && (data.loan + val) <= LOAN_LIMIT) {
-                data.loan += val;
-                data.bananas += val;
-                logEvent(`Взял займ: ${val} 🍌`);
+        function takeLoan(lim) {
+            let a = parseInt(document.getElementById('l-amt').value);
+            if(a > 0 && (data.loan + a) <= lim) {
+                data.loan += a;
+                data.bananas += a;
+                logEvent(`Займ: +${a} 🍌`);
                 updateUI(); closeModal();
-            } else {
-                tg.showAlert("Превышен лимит или введена неверная сумма!");
-            }
+            } else { tg.showAlert("Лимит превышен!"); }
         }
 
         function repayLoan() {
             if(data.bananas >= data.loan && data.loan > 0) {
                 data.bananas -= data.loan;
-                logEvent(`Погасил долг: ${data.loan} 🍌`);
+                logEvent(`Долг погашен: ${data.loan} 🍌`);
                 data.loan = 0;
                 updateUI(); closeModal();
             }
         }
 
         function openHistory() {
-            let items = data.history.slice(-15).reverse().map(i => `<div class="history-item">${i}</div>`).join('');
-            showModal(`<h3>ИСТОРИЯ</h3><div style="max-height:200px; overflow:auto">${items || "История пуста"}</div>`);
+            let list = data.history.slice(-10).reverse().map(h => `<div>• ${h}</div>`).join('');
+            showModal(`<h3>ИСТОРИЯ</h3><div class="history-list">${list || "Операций нет"}</div>`);
         }
 
-        function logEvent(txt) {
-            let time = new Date().toLocaleTimeString();
-            data.history.push(`[${time}] ${txt}`);
+        function logEvent(msg) {
+            data.history.push(`${new Date().toLocaleTimeString()} - ${msg}`);
         }
 
         function saveGame() {
-            localStorage.setItem('banana_v3', JSON.stringify(data));
-            tg.showConfirm("Данные сохранены на сервере!", () => {});
+            localStorage.setItem('banana_v3_core', JSON.stringify(data));
+            tg.showConfirm("Данные синхронизированы!");
         }
 
         function resetGame() {
-            if(confirm("СБРОСИТЬ ВСЁ? Эфир и улучшения пропадут!")) {
-                data = { bananas: 0, ether: 0, clickPower: 1, upgCost: 100, loan: 0, history: [] };
+            if(confirm("ПОЛНЫЙ СБРОС?")) {
                 localStorage.clear();
-                updateUI();
-                tg.showAlert("Прогресс обнулен.");
+                location.reload();
             }
         }
 
-        function showModal(html) { document.getElementById('modal').style.display = "flex"; document.getElementById('m-content').innerHTML = html; }
-        function closeModal() { document.getElementById('modal').style.display = "none"; }
+        function showModal(h) { document.getElementById('modal').style.display="flex"; document.getElementById('m-content').innerHTML=h; }
+        function closeModal() { document.getElementById('modal').style.display="none"; }
 
-        startTechTimer();
+        updateTechTimer();
     </script>
 </body>
 </html>
